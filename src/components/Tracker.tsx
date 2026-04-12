@@ -7,33 +7,26 @@ interface TrackerProps {
   manifest: any;
   playthroughIndex: number;
   mode: 'partida' | 'all';
+  spoilerMode: boolean;
+  searchQuery: string;
 }
 
 const STEP_STYLE: Record<string, { bg: string; border: string; color: string; label: string; icon: JSX.Element }> = {
   missable: {
-    bg:     'rgba(229,69,69,0.07)',
-    border: 'rgba(229,69,69,0.18)',
-    color:  '#e54545',
-    label:  'Perdible',
+    bg: 'rgba(229,69,69,0.07)', border: 'rgba(229,69,69,0.18)', color: '#e54545', label: 'Perdible',
     icon: <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
   },
   collectible: {
-    bg:     'rgba(74,158,255,0.07)',
-    border: 'rgba(74,158,255,0.18)',
-    color:  '#4a9eff',
-    label:  'Coleccionable',
+    bg: 'rgba(74,158,255,0.07)', border: 'rgba(74,158,255,0.18)', color: '#4a9eff', label: 'Coleccionable',
     icon: <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>,
   },
   tip: {
-    bg:     'rgba(245,166,35,0.04)',
-    border: 'rgba(245,166,35,0.1)',
-    color:  '#f5a623',
-    label:  'Consejo',
+    bg: 'rgba(245,166,35,0.04)', border: 'rgba(245,166,35,0.1)', color: '#f5a623', label: 'Consejo',
     icon: <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
   },
 };
 
-export default function Tracker({ session, manifest, playthroughIndex, mode }: TrackerProps) {
+export default function Tracker({ session, manifest, playthroughIndex, mode, spoilerMode, searchQuery }: TrackerProps) {
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -57,7 +50,6 @@ export default function Tracker({ session, manifest, playthroughIndex, mode }: T
     }
   };
 
-  // Contamos solo pasos checkables (no tips)
   const allCheckable = manifest.playthroughs.flatMap((p: any) =>
     p.zones.flatMap((z: any) => z.steps.filter((s: any) => s.type !== 'tip'))
   );
@@ -65,31 +57,54 @@ export default function Tracker({ session, manifest, playthroughIndex, mode }: T
   const doneCount = completedSteps.filter(id => allCheckable.some((s: any) => s.id === id)).length;
   const progress = totalSteps > 0 ? Math.round((doneCount / totalSteps) * 100) : 0;
 
-  if (isLoading) return (
-    <div style={{ textAlign: 'center', padding: '3rem', color: '#2a2a2a', fontSize: '0.72rem', letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: "'DM Mono', monospace" }}>
-      Cargando...
-    </div>
-  );
+  // Filtrar pasos por búsqueda
+  const matchesSearch = (step: any) => {
+    if (!searchQuery.trim()) return true;
+    return step.description.toLowerCase().includes(searchQuery.toLowerCase());
+  };
 
-  const renderZones = (zones: any[]) =>
-    zones.map((zone: any) => (
+  const renderZones = (zones: any[]) => {
+    const zonesWithResults = zones.map(zone => ({
+      ...zone,
+      filteredSteps: zone.steps.filter(matchesSearch),
+    })).filter(zone => zone.filteredSteps.length > 0);
+
+    if (zonesWithResults.length === 0 && searchQuery) {
+      return (
+        <div style={{ textAlign: 'center', padding: '2rem', color: '#333', fontSize: '0.8rem', fontFamily: "'DM Mono', monospace" }}>
+          Sin resultados para "{searchQuery}"
+        </div>
+      );
+    }
+
+    return zonesWithResults.map((zone: any) => (
       <div key={zone.name} style={{ marginBottom: '1.5rem' }}>
         <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.6rem', letterSpacing: '0.2em', color: '#2a2a2a', textTransform: 'uppercase', marginBottom: '0.6rem', paddingLeft: '2px' }}>
           {zone.name}
+          {searchQuery && <span style={{ color: '#444', marginLeft: '8px' }}>({zone.filteredSteps.length})</span>}
         </p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-          {zone.steps.map((step: any) => (
+          {zone.filteredSteps.map((step: any) => (
             <StepItem
               key={step.id}
               step={step}
               done={completedSteps.includes(step.id)}
               disabled={!session || step.type === 'tip'}
               onToggle={toggleStep}
+              spoilerMode={spoilerMode}
+              searchQuery={searchQuery}
             />
           ))}
         </div>
       </div>
     ));
+  };
+
+  if (isLoading) return (
+    <div style={{ textAlign: 'center', padding: '3rem', color: '#2a2a2a', fontSize: '0.72rem', letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: "'DM Mono', monospace" }}>
+      Cargando...
+    </div>
+  );
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -103,7 +118,7 @@ export default function Tracker({ session, manifest, playthroughIndex, mode }: T
           <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: '2rem', color: progress === 100 ? '#f5a623' : '#f0ece4', letterSpacing: '0.05em', lineHeight: 1 }}>{progress}%</span>
         </div>
         <div style={{ background: '#1a1a1a', borderRadius: '99px', height: '4px', overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: `${progress}%`, background: progress === 100 ? 'linear-gradient(90deg, #d4891a, #f5a623)' : 'linear-gradient(90deg, #333, #555)', borderRadius: '99px', transition: 'width 1s cubic-bezier(0.4,0,0.2,1)', boxShadow: progress > 0 ? '0 0 10px rgba(245,166,35,0.2)' : 'none' }} />
+          <div style={{ height: '100%', width: `${progress}%`, background: progress === 100 ? 'linear-gradient(90deg, #d4891a, #f5a623)' : 'linear-gradient(90deg, #333, #555)', borderRadius: '99px', transition: 'width 1s cubic-bezier(0.4,0,0.2,1)' }} />
         </div>
       </div>
 
@@ -134,11 +149,33 @@ export default function Tracker({ session, manifest, playthroughIndex, mode }: T
   );
 }
 
-function StepItem({ step, done, disabled, onToggle }: { step: any; done: boolean; disabled: boolean; onToggle: (id: string, type: string) => void }) {
+function StepItem({ step, done, disabled, onToggle, spoilerMode, searchQuery }: {
+  step: any; done: boolean; disabled: boolean;
+  onToggle: (id: string, type: string) => void;
+  spoilerMode: boolean; searchQuery: string;
+}) {
+  const [revealed, setRevealed] = useState(false);
   const [hovered, setHovered] = useState(false);
   const s = STEP_STYLE[step.type] || STEP_STYLE.tip;
   const isTip = step.type === 'tip';
   const isCheckable = !isTip && !disabled;
+  const isHidden = !spoilerMode && !isTip && !done && !revealed;
+
+  // Highlight search match
+  const highlight = (text: string) => {
+    if (!searchQuery.trim()) return text;
+    const idx = text.toLowerCase().indexOf(searchQuery.toLowerCase());
+    if (idx === -1) return text;
+    return (
+      <>
+        {text.slice(0, idx)}
+        <mark style={{ background: 'rgba(245,166,35,0.25)', color: '#f5a623', borderRadius: '2px', padding: '0 2px' }}>
+          {text.slice(idx, idx + searchQuery.length)}
+        </mark>
+        {text.slice(idx + searchQuery.length)}
+      </>
+    );
+  };
 
   return (
     <div
@@ -150,19 +187,14 @@ function StepItem({ step, done, disabled, onToggle }: { step: any; done: boolean
         border: `1px solid ${done ? '#141414' : (hovered && isCheckable ? s.border : '#1a1a1a')}`,
         borderRadius: '7px',
         padding: isTip ? '0.7rem 1rem' : '0.85rem 1rem',
-        display: 'flex',
-        gap: '0.75rem',
-        alignItems: 'flex-start',
+        display: 'flex', gap: '0.75rem', alignItems: 'flex-start',
         cursor: isCheckable ? 'pointer' : 'default',
         opacity: done ? 0.4 : 1,
         transition: 'all 0.18s',
       }}
     >
-      {/* Checkbox o ícono tip */}
       {isTip ? (
-        <div style={{ width: '16px', height: '16px', flexShrink: 0, marginTop: '2px', color: '#f5a623', opacity: 0.5 }}>
-          {s.icon}
-        </div>
+        <div style={{ width: '16px', height: '16px', flexShrink: 0, marginTop: '2px', color: '#f5a623', opacity: 0.5 }}>{s.icon}</div>
       ) : (
         <div style={{ width: '17px', height: '17px', borderRadius: '4px', border: `2px solid ${done ? '#f5a623' : '#2a2a2a'}`, background: done ? '#f5a623' : 'transparent', flexShrink: 0, marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.18s' }}>
           {done && <svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#000" strokeWidth="2.5"><polyline points="1.5,6 5,9.5 10.5,2.5"/></svg>}
@@ -175,9 +207,22 @@ function StepItem({ step, done, disabled, onToggle }: { step: any; done: boolean
             {s.icon}{s.label}
           </span>
         )}
-        <p style={{ color: done ? '#2a2a2a' : (isTip ? '#4a4a4a' : '#c0bcb4'), fontSize: isTip ? '0.78rem' : '0.85rem', margin: 0, lineHeight: 1.55, fontWeight: 300, textDecoration: done ? 'line-through' : 'none', fontStyle: isTip ? 'italic' : 'normal' }}>
-          {step.description}
-        </p>
+
+        {isHidden ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <p style={{ color: '#2a2a2a', fontSize: '0.82rem', margin: 0, fontStyle: 'italic' }}>Spoiler oculto</p>
+            <button
+              onClick={e => { e.stopPropagation(); setRevealed(true); }}
+              style={{ fontSize: '0.62rem', color: '#f5a623', background: 'rgba(245,166,35,0.08)', border: '1px solid rgba(245,166,35,0.2)', borderRadius: '4px', padding: '2px 8px', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", fontWeight: 600 }}
+            >
+              Revelar
+            </button>
+          </div>
+        ) : (
+          <p style={{ color: done ? '#2a2a2a' : (isTip ? '#4a4a4a' : '#c0bcb4'), fontSize: isTip ? '0.78rem' : '0.85rem', margin: 0, lineHeight: 1.55, fontWeight: 300, textDecoration: done ? 'line-through' : 'none', fontStyle: isTip ? 'italic' : 'normal' }}>
+            {highlight(step.description)}
+          </p>
+        )}
       </div>
     </div>
   );
