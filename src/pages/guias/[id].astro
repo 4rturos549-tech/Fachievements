@@ -4,9 +4,6 @@ import Layout from '../../layouts/Layout.astro';
 import App from '../../components/App.tsx';
 import { getGameMetadata } from '../../lib/igdb';
 import { createClient } from '@supabase/supabase-js';
-import { loadEnv } from 'vite';
-
-const env = loadEnv(process.env.NODE_ENV || 'production', process.cwd(), '');
 
 const { id } = Astro.params;
 if (!id) return Astro.redirect('/');
@@ -16,8 +13,8 @@ let manifest = null;
 // 1. Buscar en Supabase primero
 try {
   const supabase = createClient(
-    env.PUBLIC_SUPABASE_URL,
-    env.PUBLIC_SUPABASE_ANON_KEY
+    process.env.PUBLIC_SUPABASE_URL!,
+    process.env.PUBLIC_SUPABASE_ANON_KEY!
   );
   const { data } = await supabase
     .from('game_guides')
@@ -25,9 +22,7 @@ try {
     .eq('igdb_id', String(id))
     .single();
 
-  if (data?.manifest) {
-    manifest = data.manifest;
-  }
+  if (data?.manifest) manifest = data.manifest;
 } catch (e) {}
 
 // 2. Si no está en Supabase, buscar en archivos locales

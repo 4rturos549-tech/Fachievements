@@ -1,9 +1,7 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
-import { loadEnv } from 'vite';
 
-const env = loadEnv(process.env.NODE_ENV || 'production', process.cwd(), '');
-const ADMIN_PASSWORD = 'fachievements2024'; // Cámbiala a la misma que en admin.astro
+const ADMIN_PASSWORD = 'fachievements2024';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -16,12 +14,9 @@ export const POST: APIRoute = async ({ request }) => {
       return new Response(JSON.stringify({ error: 'Faltan datos' }), { status: 400 });
     }
 
-    // Usamos la anon key con upsert — la política RLS permite service_role
-    // Para escritura desde el servidor usamos la SERVICE_ROLE_KEY si la tienes
-    // Si no, desactiva temporalmente RLS en Supabase para hacer el upsert
     const supabase = createClient(
-      env.PUBLIC_SUPABASE_URL,
-      env.SUPABASE_SERVICE_ROLE_KEY || env.PUBLIC_SUPABASE_ANON_KEY
+      process.env.PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.PUBLIC_SUPABASE_ANON_KEY!
     );
 
     const { error } = await supabase

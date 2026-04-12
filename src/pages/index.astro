@@ -1,15 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import SearchBar from '../components/SearchBar.tsx';
-import { loadEnv } from 'vite';
-
-const env = loadEnv(process.env.NODE_ENV || 'production', process.cwd(), '');
 
 let featured: { id: number; name: string; rating: number | null; coverUrl: string | null }[] = [];
 
 try {
-  const clientId = env.TWITCH_CLIENT_ID;
-  const clientSecret = env.TWITCH_CLIENT_SECRET;
+  const clientId = process.env.TWITCH_CLIENT_ID;
+  const clientSecret = process.env.TWITCH_CLIENT_SECRET;
 
   if (clientId && clientSecret) {
     const tokenRes = await fetch(
@@ -76,12 +73,7 @@ try {
               onmouseout="this.style.borderColor='#1a1a1a'; this.style.transform='none'; this.style.boxShadow='none'"
             >
               <div style="aspect-ratio:3/4; overflow:hidden; background:#111;">
-                <img
-                  src={game.coverUrl || 'https://placehold.co/300x400/0d0d0d/222?text=?'}
-                  alt={game.name}
-                  style="width:100%; height:100%; object-fit:cover;"
-                  loading="lazy"
-                />
+                <img src={game.coverUrl || 'https://placehold.co/300x400/0d0d0d/222?text=?'} alt={game.name} style="width:100%; height:100%; object-fit:cover;" loading="lazy" />
               </div>
               <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.15) 60%, transparent 100%); padding:0.7rem; display:flex; flex-direction:column; justify-content:flex-end;">
                 {game.rating && (

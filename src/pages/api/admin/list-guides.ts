@@ -1,14 +1,11 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
-import { loadEnv } from 'vite';
-
-const env = loadEnv(process.env.NODE_ENV || 'production', process.cwd(), '');
 
 export const GET: APIRoute = async () => {
   try {
     const supabase = createClient(
-      env.PUBLIC_SUPABASE_URL,
-      env.PUBLIC_SUPABASE_ANON_KEY
+      process.env.PUBLIC_SUPABASE_URL!,
+      process.env.PUBLIC_SUPABASE_ANON_KEY!
     );
 
     const { data, error } = await supabase

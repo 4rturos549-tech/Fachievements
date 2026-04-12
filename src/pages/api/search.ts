@@ -12,9 +12,11 @@ export const GET: APIRoute = async ({ request }) => {
   }
 
   try {
-    // 1. Obtener Token de Twitch
+    const clientId = process.env.TWITCH_CLIENT_ID;
+    const clientSecret = process.env.TWITCH_CLIENT_SECRET;
+
     const tokenRes = await fetch(
-      `https://id.twitch.tv/oauth2/token?client_id=${import.meta.env.TWITCH_CLIENT_ID}&client_secret=${import.meta.env.TWITCH_CLIENT_SECRET}&grant_type=client_credentials`,
+      `https://id.twitch.tv/oauth2/token?client_id=${clientId}&client_secret=${clientSecret}&grant_type=client_credentials`,
       { method: 'POST' }
     );
 
@@ -24,11 +26,10 @@ export const GET: APIRoute = async ({ request }) => {
 
     const { access_token } = await tokenRes.json();
 
-    // 2. Buscar en IGDB
     const igdbRes = await fetch('https://api.igdb.com/v4/games', {
       method: 'POST',
       headers: {
-        'Client-ID': import.meta.env.TWITCH_CLIENT_ID,
+        'Client-ID': clientId!,
         'Authorization': `Bearer ${access_token}`,
         'Accept': 'application/json',
       },
@@ -41,7 +42,6 @@ export const GET: APIRoute = async ({ request }) => {
 
     const games = await igdbRes.json();
 
-    // 3. Formatear respuesta
     const results = games.map((g: any) => ({
       id: g.id,
       name: g.name,
