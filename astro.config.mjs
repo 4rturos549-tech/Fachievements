@@ -2,19 +2,13 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
-import node from '@astrojs/node';
+import vercel from '@astrojs/vercel';
 
-// https://astro.build/config
 export default defineConfig({
-  // SSR necesario para que /guias/[id].astro sea dinámico (cualquier ID de IGDB)
   output: 'server',
-  adapter: node({
-    mode: 'standalone',
-  }),
-
+  adapter: vercel(),
   integrations: [react()],
-
   vite: {
-    plugins: [tailwindcss()],
-  },
+    plugins: [tailwindcss()]
+  }
 });
