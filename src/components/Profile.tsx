@@ -2,12 +2,6 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Session } from '@supabase/supabase-js';
 
-// Manifests conocidos — se pueden leer dinámicamente pero para el perfil usamos esta lista
-// En el futuro esto vendría de una API interna
-const KNOWN_GAMES: Record<string, { name: string; totalSteps: number }> = {
-  '19562': { name: 'Resident Evil 7: Biohazard', totalSteps: 64 },
-};
-
 interface GameProgress {
   igdbId: string;
   name: string;
@@ -20,50 +14,75 @@ export default function Profile({ session }: { session: Session }) {
   const [loading, setLoading] = useState(true);
   const [totalChecks, setTotalChecks] = useState(0);
   const [activeGames, setActiveGames] = useState<GameProgress[]>([]);
-  const [username, setUsername] = useState('');
+
+  const avatar = (session.user.email?.charAt(0) ?? '?').toUpperCase();
+  const username = session.user.email?.split('@')[0] ?? '';
 
   useEffect(() => {
     async function load() {
-      // Traer todos los step_id completados
-      const { data, error } = await supabase
+      // 1. Traer todos los steps completados con su igdb_id
+      const { data: steps, error } = await supabase
         .from('completed_steps')
-        .select('step_id')
+        .select('step_id, igdb_id')
         .eq('user_id', session.user.id);
 
-      if (error || !data) { setLoading(false); return; }
+      if (error || !steps) { setLoading(false); return; }
 
-      setTotalChecks(data.length);
+      setTotalChecks(steps.length);
 
-      // Agrupar steps por juego detectando el prefijo del step_id (p1_, p2_, p3_ = RE7)
-      // Por ahora usamos KNOWN_GAMES para mapear
-      const games: GameProgress[] = [];
-      for (const [igdbId, info] of Object.entries(KNOWN_GAMES)) {
-        // Los step IDs de RE7 empiezan con p1_, p2_, p3_
-        const gameSteps = data.filter(r =>
-          r.step_id.startsWith('p1_') || r.step_id.startsWith('p2_') || r.step_id.startsWith('p3_')
-        );
-        if (gameSteps.length > 0) {
-          const pct = Math.round((gameSteps.length / info.totalSteps) * 100);
-          games.push({
-            igdbId,
-            name: info.name,
-            completedSteps: gameSteps.length,
-            totalSteps: info.totalSteps,
-            percentage: Math.min(pct, 100),
-          });
+      // 2. Agrupar por igdb_id (solo los que tienen igdb_id guardado)
+      const byGame: Record<string, number> = {};
+      for (const row of steps) {
+        if (row.igdb_id) {
+          byGame[row.igdb_id] = (byGame[row.igdb_id] || 0) + 1;
         }
       }
+
+      if (Object.keys(byGame).length === 0) { setLoading(false); return; }
+
+      // 3. Traer manifests de Supabase para obtener nombre y total de pasos
+      const igdbIds = Object.keys(byGame);
+      const { data: guides } = await supabase
+        .from('game_guides')
+        .select('igdb_id, manifest')
+        .in('igdb_id', igdbIds);
+
+      const games: GameProgress[] = [];
+
+      for (const igdbId of igdbIds) {
+        const guide = guides?.find((g: any) => g.igdb_id === igdbId);
+        let name = `Juego ${igdbId}`;
+        let totalSteps = 0;
+
+        if (guide?.manifest) {
+          name = guide.manifest.title || name;
+          // Contar pasos checkables (no tips)
+          totalSteps = guide.manifest.playthroughs?.reduce(
+            (acc: number, p: any) =>
+              acc + p.zones.reduce(
+                (z: number, zone: any) =>
+                  z + zone.steps.filter((s: any) => s.type !== 'tip').length,
+                0
+              ),
+            0
+          ) || 0;
+        }
+
+        const completed = byGame[igdbId] || 0;
+        const percentage = totalSteps > 0 ? Math.min(Math.round((completed / totalSteps) * 100), 100) : 0;
+
+        games.push({ igdbId, name, completedSteps: completed, totalSteps, percentage });
+      }
+
+      // Ordenar por porcentaje descendente
+      games.sort((a, b) => b.percentage - a.percentage);
       setActiveGames(games);
       setLoading(false);
     }
-    load();
 
-    // Username desde email
-    const email = session.user.email ?? '';
-    setUsername(email.split('@')[0]);
+    load();
   }, [session.user.id]);
 
-  const avatar = (session.user.email?.charAt(0) ?? '?').toUpperCase();
   const platinos = activeGames.filter(g => g.percentage === 100).length;
 
   if (loading) return (
@@ -75,10 +94,9 @@ export default function Profile({ session }: { session: Session }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
-      {/* ── HEADER ── */}
+      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-        {/* Avatar */}
-        <div style={{ width: '64px', height: '64px', background: 'linear-gradient(135deg, rgba(245,166,35,0.2), rgba(245,166,35,0.05))', border: '1px solid rgba(245,166,35,0.3)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue',sans-serif", fontSize: '2rem', color: '#f5a623', flexShrink: 0, letterSpacing: '0.05em' }}>
+        <div style={{ width: '64px', height: '64px', background: 'linear-gradient(135deg, rgba(245,166,35,0.2), rgba(245,166,35,0.05))', border: '1px solid rgba(245,166,35,0.3)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue',sans-serif", fontSize: '2rem', color: '#f5a623', flexShrink: 0 }}>
           {avatar}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -99,7 +117,7 @@ export default function Profile({ session }: { session: Session }) {
 
       <div style={{ height: '1px', background: '#111' }} />
 
-      {/* ── STATS ── */}
+      {/* Stats */}
       <div>
         <p style={{ fontFamily: "'DM Mono',monospace", fontSize: '0.62rem', letterSpacing: '0.18em', color: '#333', textTransform: 'uppercase', marginBottom: '0.85rem' }}>Estadísticas</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.6rem' }}>
@@ -116,7 +134,7 @@ export default function Profile({ session }: { session: Session }) {
         </div>
       </div>
 
-      {/* ── JUEGOS EN PROGRESO ── */}
+      {/* Juegos en progreso */}
       <div>
         <p style={{ fontFamily: "'DM Mono',monospace", fontSize: '0.62rem', letterSpacing: '0.18em', color: '#333', textTransform: 'uppercase', marginBottom: '0.85rem' }}>En progreso</p>
 
@@ -140,16 +158,15 @@ export default function Profile({ session }: { session: Session }) {
                   <div>
                     <p style={{ color: '#f0ece4', fontSize: '0.88rem', fontWeight: 600, margin: '0 0 3px' }}>{game.name}</p>
                     <p style={{ fontFamily: "'DM Mono',monospace", fontSize: '0.6rem', color: '#333', margin: 0 }}>
-                      {game.completedSteps} / {game.totalSteps} pasos
+                      {game.completedSteps} / {game.totalSteps > 0 ? game.totalSteps : '?'} pasos
                     </p>
                   </div>
                   <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: '1.4rem', color: game.percentage === 100 ? '#f5a623' : '#f0ece4', letterSpacing: '0.05em', lineHeight: 1 }}>
                     {game.percentage}%
                   </span>
                 </div>
-                {/* Progress bar */}
                 <div style={{ background: '#141414', borderRadius: '99px', height: '3px', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${game.percentage}%`, background: game.percentage === 100 ? 'linear-gradient(90deg, #d4891a, #f5a623)' : '#2a2a2a', borderRadius: '99px', transition: 'width 1s cubic-bezier(0.4,0,0.2,1)', boxShadow: game.percentage > 0 ? '0 0 8px rgba(245,166,35,0.15)' : 'none' }} />
+                  <div style={{ height: '100%', width: `${game.percentage}%`, background: game.percentage === 100 ? 'linear-gradient(90deg, #d4891a, #f5a623)' : '#2a2a2a', borderRadius: '99px', transition: 'width 1s cubic-bezier(0.4,0,0.2,1)' }} />
                 </div>
                 {game.percentage === 100 && (
                   <p style={{ fontFamily: "'DM Mono',monospace", fontSize: '0.6rem', color: '#f5a623', margin: '0.5rem 0 0', letterSpacing: '0.1em', textTransform: 'uppercase' }}>

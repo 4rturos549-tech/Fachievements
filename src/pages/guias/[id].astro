@@ -10,7 +10,6 @@ if (!id) return Astro.redirect('/');
 
 let manifest = null;
 
-// 1. Buscar en Supabase primero
 try {
   const supabase = createClient(
     process.env.PUBLIC_SUPABASE_URL!,
@@ -21,21 +20,16 @@ try {
     .select('manifest')
     .eq('igdb_id', String(id))
     .single();
-
   if (data?.manifest) manifest = data.manifest;
 } catch (e) {}
 
-// 2. Si no está en Supabase, buscar en archivos locales
 if (!manifest) {
   try {
     const allGuides = import.meta.glob('../../data/*.json', { eager: true });
     for (const path in allGuides) {
       const module: any = allGuides[path];
       const data = module.default ?? module;
-      if (String(data.igdb_id) === String(id)) {
-        manifest = data;
-        break;
-      }
+      if (String(data.igdb_id) === String(id)) { manifest = data; break; }
     }
   } catch (e) {}
 }
@@ -45,7 +39,6 @@ if (!meta) return Astro.redirect('/');
 ---
 
 <Layout title={`${meta.name} — Fachievements`} backHref="/" backLabel="Buscador">
-
   <div style="position:relative; border-bottom:1px solid #1e1e1e; overflow:hidden;">
     {(meta.screenshots?.[0] || meta.coverUrl) && (
       <div style="position:absolute; inset:0; overflow:hidden;">
@@ -79,7 +72,7 @@ if (!meta) return Astro.redirect('/');
   </div>
 
   <main style="max-width:900px; margin:0 auto; padding:2rem 1.5rem 6rem;">
-    <App manifest={manifest} meta={meta} client:load />
+    <!-- igdbId se pasa para que Tracker lo guarde en Supabase -->
+    <App manifest={manifest} meta={meta} igdbId={id} client:load />
   </main>
-
 </Layout>

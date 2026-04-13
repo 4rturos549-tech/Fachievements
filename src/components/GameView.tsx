@@ -15,7 +15,7 @@ function TrophyIcon({ type, size = 16 }: { type: string; size?: number }) {
   );
 }
 
-export default function GameView({ session, manifest, meta }: { session: Session | null; manifest: any; meta: any }) {
+export default function GameView({ session, manifest, meta, igdbId }: { session: Session | null; manifest: any; meta: any; igdbId: string }) {
   const [activeTab, setActiveTab] = useState<'info' | 'logros' | 'guia'>('info');
   const [activePlaythrough, setActivePlaythrough] = useState(0);
   const [guideMode, setGuideMode] = useState<'partidas' | 'pasos'>('partidas');
@@ -272,12 +272,12 @@ export default function GameView({ session, manifest, meta }: { session: Session
                       {manifest.playthroughs[activePlaythrough].summary}
                     </p>
                   )}
-                  <Tracker session={session} manifest={manifest} playthroughIndex={activePlaythrough} mode="partida" spoilerMode={spoilerMode} searchQuery={stepSearch} />
+                  <Tracker session={session} manifest={manifest} playthroughIndex={activePlaythrough} mode="partida" spoilerMode={spoilerMode} searchQuery={stepSearch} igdbId={igdbId} />
                 </div>
               )}
 
               {guideMode === 'pasos' && (
-                <Tracker session={session} manifest={manifest} playthroughIndex={0} mode="all" spoilerMode={spoilerMode} searchQuery={stepSearch} />
+                <Tracker session={session} manifest={manifest} playthroughIndex={0} mode="all" spoilerMode={spoilerMode} searchQuery={stepSearch} igdbId={igdbId} />
               )}
             </div>
           ) : (

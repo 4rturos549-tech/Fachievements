@@ -8,10 +8,11 @@ import type { Session } from '@supabase/supabase-js';
 interface AppProps {
   manifest?: any;
   meta?: any;
+  igdbId?: string;
   view?: 'tracker' | 'profile';
 }
 
-export default function App({ manifest, meta, view = 'tracker' }: AppProps) {
+export default function App({ manifest, meta, igdbId, view = 'tracker' }: AppProps) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -34,5 +35,5 @@ export default function App({ manifest, meta, view = 'tracker' }: AppProps) {
     return session ? <Profile session={session} /> : <Auth />;
   }
 
-  return meta ? <GameView session={session} manifest={manifest} meta={meta} /> : null;
+  return meta ? <GameView session={session} manifest={manifest} meta={meta} igdbId={igdbId || ''} /> : null;
 }

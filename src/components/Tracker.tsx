@@ -9,6 +9,7 @@ interface TrackerProps {
   mode: 'partida' | 'all';
   spoilerMode: boolean;
   searchQuery: string;
+  igdbId: string;
 }
 
 const STEP_STYLE: Record<string, { bg: string; border: string; color: string; label: string; icon: JSX.Element }> = {
@@ -26,7 +27,7 @@ const STEP_STYLE: Record<string, { bg: string; border: string; color: string; la
   },
 };
 
-export default function Tracker({ session, manifest, playthroughIndex, mode, spoilerMode, searchQuery }: TrackerProps) {
+export default function Tracker({ session, manifest, playthroughIndex, mode, spoilerMode, searchQuery, igdbId }: TrackerProps) {
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -46,7 +47,12 @@ export default function Tracker({ session, manifest, playthroughIndex, mode, spo
     if (done) {
       await supabase.from('completed_steps').delete().match({ step_id: stepId, user_id: session.user.id });
     } else {
-      await supabase.from('completed_steps').insert({ step_id: stepId, user_id: session.user.id });
+      // Ahora guardamos igdb_id para que el perfil pueda agrupar por juego
+      await supabase.from('completed_steps').insert({
+        step_id: stepId,
+        user_id: session.user.id,
+        igdb_id: igdbId,
+      });
     }
   };
 
@@ -57,17 +63,15 @@ export default function Tracker({ session, manifest, playthroughIndex, mode, spo
   const doneCount = completedSteps.filter(id => allCheckable.some((s: any) => s.id === id)).length;
   const progress = totalSteps > 0 ? Math.round((doneCount / totalSteps) * 100) : 0;
 
-  // Filtrar pasos por búsqueda
   const matchesSearch = (step: any) => {
     if (!searchQuery.trim()) return true;
     return step.description.toLowerCase().includes(searchQuery.toLowerCase());
   };
 
   const renderZones = (zones: any[]) => {
-    const zonesWithResults = zones.map(zone => ({
-      ...zone,
-      filteredSteps: zone.steps.filter(matchesSearch),
-    })).filter(zone => zone.filteredSteps.length > 0);
+    const zonesWithResults = zones
+      .map(zone => ({ ...zone, filteredSteps: zone.steps.filter(matchesSearch) }))
+      .filter(zone => zone.filteredSteps.length > 0);
 
     if (zonesWithResults.length === 0 && searchQuery) {
       return (
@@ -161,11 +165,10 @@ function StepItem({ step, done, disabled, onToggle, spoilerMode, searchQuery }: 
   const isCheckable = !isTip && !disabled;
   const isHidden = !spoilerMode && !isTip && !done && !revealed;
 
-  // Highlight search match
   const highlight = (text: string) => {
-    if (!searchQuery.trim()) return text;
+    if (!searchQuery.trim()) return <>{text}</>;
     const idx = text.toLowerCase().indexOf(searchQuery.toLowerCase());
-    if (idx === -1) return text;
+    if (idx === -1) return <>{text}</>;
     return (
       <>
         {text.slice(0, idx)}
@@ -185,12 +188,10 @@ function StepItem({ step, done, disabled, onToggle, spoilerMode, searchQuery }: 
       style={{
         background: done ? 'transparent' : (hovered && isCheckable ? s.bg : '#0a0a0a'),
         border: `1px solid ${done ? '#141414' : (hovered && isCheckable ? s.border : '#1a1a1a')}`,
-        borderRadius: '7px',
-        padding: isTip ? '0.7rem 1rem' : '0.85rem 1rem',
+        borderRadius: '7px', padding: isTip ? '0.7rem 1rem' : '0.85rem 1rem',
         display: 'flex', gap: '0.75rem', alignItems: 'flex-start',
         cursor: isCheckable ? 'pointer' : 'default',
-        opacity: done ? 0.4 : 1,
-        transition: 'all 0.18s',
+        opacity: done ? 0.4 : 1, transition: 'all 0.18s',
       }}
     >
       {isTip ? (
@@ -200,14 +201,12 @@ function StepItem({ step, done, disabled, onToggle, spoilerMode, searchQuery }: 
           {done && <svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#000" strokeWidth="2.5"><polyline points="1.5,6 5,9.5 10.5,2.5"/></svg>}
         </div>
       )}
-
       <div style={{ flex: 1 }}>
         {!isTip && (
           <span style={{ fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '2px 6px', borderRadius: '3px', display: 'inline-flex', alignItems: 'center', gap: '3px', marginBottom: '5px', background: s.bg, color: s.color, border: `1px solid ${s.border}` }}>
             {s.icon}{s.label}
           </span>
         )}
-
         {isHidden ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <p style={{ color: '#2a2a2a', fontSize: '0.82rem', margin: 0, fontStyle: 'italic' }}>Spoiler oculto</p>
