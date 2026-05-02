@@ -1,0 +1,69 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SearchBar from '../components/SearchBar.tsx';
+import { getFeaturedGames } from '../lib/igdb';
+import type { FeaturedGame } from '../lib/types';
+
+let featured: FeaturedGame[] = [];
+try {
+  featured = await getFeaturedGames();
+} catch (e) {
+  console.error('[index] featured:', e);
+}
+---
+
+<Layout
+  title="Fachievements — Guías de Trofeos y Logros"
+  description="Busca cualquier juego, sigue la guía paso a paso y consigue todos los trofeos y logros sin perder ninguno."
+>
+  <main style="max-width:960px; margin:0 auto; padding:3.5rem 1.5rem 6rem;">
+
+    <header style="margin-bottom:3.5rem;">
+      <p style="font-family:'DM Mono',monospace; font-size:0.68rem; letter-spacing:0.22em; color:#f5a623; text-transform:uppercase; margin-bottom:0.85rem; opacity:0.8;">Base de datos global · IGDB</p>
+      <h1 style="font-family:'Bebas Neue',sans-serif; font-size:clamp(3rem,8vw,5.5rem); letter-spacing:0.04em; line-height:0.92; color:#f0ece4; margin-bottom:1.25rem;">
+        Consigue<br/>
+        <span style="color:#f5a623;">el Platino.</span>
+      </h1>
+      <p style="font-size:1rem; color:#484848; font-weight:400; max-width:420px; line-height:1.65;">
+        Busca cualquier juego, sigue la guía paso a paso y no pierdas ningún trofeo.
+      </p>
+    </header>
+
+    <SearchBar client:load />
+
+    {featured.length > 0 && (
+      <section style="margin-top:4rem;">
+        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1.5rem;">
+          <span style="font-family:'DM Mono',monospace; font-size:0.65rem; letter-spacing:0.18em; color:#333; text-transform:uppercase;">Destacados</span>
+          <div style="flex:1; height:1px; background:#1a1a1a;"></div>
+          <span style="font-family:'DM Mono',monospace; font-size:0.6rem; letter-spacing:0.12em; color:#2a2a2a; text-transform:uppercase;">Top rated</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:0.85rem;">
+          {featured.map(game => (
+            <a
+              href={`/guias/${game.id}`}
+              class="featured-card"
+              style="position:relative; display:block; border-radius:8px; overflow:hidden; background:#0d0d0d; border:1px solid #1a1a1a; text-decoration:none; transition:border-color 0.2s, transform 0.2s, box-shadow 0.2s;"
+            >
+              <div style="aspect-ratio:3/4; overflow:hidden; background:#111;">
+                <img src={game.coverUrl || 'https://placehold.co/300x400/0d0d0d/222?text=?'} alt={game.name} style="width:100%; height:100%; object-fit:cover;" loading="lazy" />
+              </div>
+              <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.15) 60%, transparent 100%); padding:0.7rem; display:flex; flex-direction:column; justify-content:flex-end;">
+                {game.rating && (
+                  <span style="font-family:'DM Mono',monospace; font-size:0.6rem; color:#f5a623; margin-bottom:3px;">{game.rating}</span>
+                )}
+                <p style="color:#e8e4dc; font-size:0.75rem; font-weight:600; line-height:1.25; margin:0;">{game.name}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+  </main>
+</Layout>
+
+<style>
+  .featured-card:hover { border-color: #7a4e0d !important; transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.6); }
+</style>

@@ -1,0 +1,206 @@
+---
+export const prerender = false;
+import Layout from '../layouts/Layout.astro';
+
+const isAuth = Astro.cookies.get('fach_admin')?.value === '1';
+---
+
+<Layout title="Admin — Fachievements" backHref="/" backLabel="Inicio">
+  <main style="max-width:800px; margin:0 auto; padding:3rem 1.5rem 6rem;">
+
+    <div style="margin-bottom:2.5rem;">
+      <p style="font-family:'DM Mono',monospace; font-size:0.68rem; letter-spacing:0.2em; color:#f5a623; text-transform:uppercase; margin-bottom:0.5rem;">Panel de administración</p>
+      <h1 style="font-family:'Bebas Neue',sans-serif; font-size:2.5rem; letter-spacing:0.06em; color:#f0ece4; margin:0;">Subir Guía</h1>
+    </div>
+
+    <div id="admin-app" data-authed={String(isAuth)}></div>
+
+  </main>
+</Layout>
+
+<script>
+  const app = document.getElementById('admin-app')!;
+  let authenticated = app.dataset.authed === 'true';
+
+  function render() {
+    authenticated ? renderUploader() : renderLogin();
+  }
+
+  function renderLogin() {
+    app.innerHTML = `
+      <div style="background:#0d0d0d; border:1px solid #1e1e1e; border-radius:12px; padding:2rem; max-width:380px;">
+        <p style="font-family:'DM Mono',monospace; font-size:0.65rem; letter-spacing:0.15em; color:#444; text-transform:uppercase; margin-bottom:1rem;">Acceso requerido</p>
+        <input id="pwd-input" type="password" placeholder="Contraseña de admin" style="width:100%; background:#080808; border:1px solid #2a2a2a; border-radius:8px; color:#f0ece4; font-family:'DM Sans',sans-serif; font-size:0.95rem; padding:0.8rem 1rem; outline:none; margin-bottom:0.75rem; box-sizing:border-box;" />
+        <button id="pwd-btn" style="width:100%; background:#f5a623; color:#000; font-family:'DM Sans',sans-serif; font-weight:700; font-size:0.78rem; letter-spacing:0.08em; text-transform:uppercase; padding:0.7rem; border-radius:7px; border:none; cursor:pointer;">Entrar</button>
+        <p id="pwd-error" style="color:#e54545; font-size:0.75rem; margin-top:0.5rem; display:none;">Contraseña incorrecta.</p>
+      </div>
+    `;
+
+    const input = document.getElementById('pwd-input') as HTMLInputElement;
+    const btn = document.getElementById('pwd-btn')!;
+    const error = document.getElementById('pwd-error')!;
+
+    const tryLogin = async () => {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: input.value }),
+      });
+      if (res.ok) {
+        authenticated = true;
+        render();
+      } else {
+        error.style.display = 'block';
+        input.value = '';
+      }
+    };
+
+    btn.addEventListener('click', tryLogin);
+    input.addEventListener('keydown', e => e.key === 'Enter' && tryLogin());
+    input.focus();
+  }
+
+  function renderUploader() {
+    app.innerHTML = `
+      <div style="display:flex; flex-direction:column; gap:1.5rem;">
+        <div style="background:rgba(245,166,35,0.05); border:1px solid rgba(245,166,35,0.12); border-radius:10px; padding:1.25rem 1.5rem;">
+          <p style="font-family:'DM Mono',monospace; font-size:0.62rem; letter-spacing:0.15em; color:#f5a623; text-transform:uppercase; margin-bottom:0.5rem;">Cómo usar</p>
+          <p style="font-size:0.82rem; color:#666; margin:0; line-height:1.65;">
+            1. Genera el JSON del manifest siguiendo el schema documentado.<br/>
+            2. Pégalo abajo y escribe el <strong style="color:#f0ece4;">igdb_id</strong> del juego.<br/>
+            3. Pulsa <strong style="color:#f0ece4;">Subir a Supabase</strong>.
+          </p>
+        </div>
+
+        <div>
+          <label style="display:block; font-size:0.68rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#444; margin-bottom:0.4rem;">IGDB ID del juego</label>
+          <input id="igdb-id" type="number" min="1" placeholder="Ej: 19562" style="width:100%; background:#0d0d0d; border:1px solid #2a2a2a; border-radius:8px; color:#f0ece4; font-family:'DM Mono',monospace; font-size:0.9rem; padding:0.8rem 1rem; outline:none; box-sizing:border-box;" />
+        </div>
+
+        <div>
+          <label style="display:block; font-size:0.68rem; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:#444; margin-bottom:0.4rem;">JSON del manifest</label>
+          <textarea id="manifest-json" rows="18" placeholder='{ "igdb_id": "...", "title": "...", "achievements": [...], "playthroughs": [...] }' style="width:100%; background:#0d0d0d; border:1px solid #2a2a2a; border-radius:8px; color:#f0ece4; font-family:'DM Mono',monospace; font-size:0.8rem; padding:1rem; outline:none; box-sizing:border-box; resize:vertical; line-height:1.6;"></textarea>
+        </div>
+
+        <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+          <button id="upload-btn" style="background:#f5a623; color:#000; font-family:'DM Sans',sans-serif; font-weight:700; font-size:0.78rem; letter-spacing:0.08em; text-transform:uppercase; padding:0.75rem 1.5rem; border-radius:7px; border:none; cursor:pointer;">Subir a Supabase</button>
+          <button id="validate-btn" style="background:transparent; border:1px solid #2a2a2a; color:#555; font-family:'DM Sans',sans-serif; font-weight:600; font-size:0.75rem; letter-spacing:0.08em; text-transform:uppercase; padding:0.75rem 1.25rem; border-radius:7px; cursor:pointer;">Validar JSON</button>
+          <button id="logout-btn" style="margin-left:auto; background:transparent; border:1px solid #1e1e1e; color:#333; font-family:'DM Sans',sans-serif; font-weight:600; font-size:0.7rem; letter-spacing:0.08em; text-transform:uppercase; padding:0.6rem 1rem; border-radius:6px; cursor:pointer;">Cerrar sesión</button>
+        </div>
+
+        <div id="status-msg" style="display:none;"></div>
+
+        <div>
+          <p style="font-family:'DM Mono',monospace; font-size:0.62rem; letter-spacing:0.15em; color:#2a2a2a; text-transform:uppercase; margin-bottom:0.75rem;">Guías en Supabase</p>
+          <div id="guides-list" style="font-family:'DM Mono',monospace; font-size:0.75rem; color:#333;">Cargando...</div>
+        </div>
+      </div>
+    `;
+
+    loadGuides();
+    document.getElementById('validate-btn')!.addEventListener('click', validateJSON);
+    document.getElementById('upload-btn')!.addEventListener('click', uploadManifest);
+    document.getElementById('logout-btn')!.addEventListener('click', async () => {
+      await fetch('/api/admin/login', { method: 'DELETE' });
+      authenticated = false;
+      render();
+    });
+  }
+
+  function showStatus(msg: string, type: 'ok' | 'error' | 'info') {
+    const el = document.getElementById('status-msg')!;
+    const colors = { ok: '#4caf50', error: '#e54545', info: '#f5a623' };
+    const bgs = { ok: 'rgba(76,175,80,0.08)', error: 'rgba(229,69,69,0.08)', info: 'rgba(245,166,35,0.08)' };
+    el.style.cssText = `display:flex; align-items:center; gap:8px; background:${bgs[type]}; border:1px solid ${colors[type]}33; border-radius:8px; padding:0.85rem 1rem; color:${colors[type]}; font-size:0.82rem; font-family:'DM Mono',monospace;`;
+    el.textContent = msg;
+  }
+
+  function validateJSON() {
+    const textarea = document.getElementById('manifest-json') as HTMLTextAreaElement;
+    try {
+      const parsed = JSON.parse(textarea.value);
+      const required = ['igdb_id', 'title', 'achievements', 'playthroughs'];
+      const missing = required.filter(k => !(k in parsed));
+      if (missing.length > 0) {
+        showStatus(`Faltan campos: ${missing.join(', ')}`, 'error');
+        return;
+      }
+      const steps = parsed.playthroughs.reduce(
+        (acc: number, p: { zones: { steps: unknown[] }[] }) =>
+          acc + p.zones.reduce((z, zone) => z + zone.steps.length, 0),
+        0
+      );
+      showStatus(`JSON válido — ${parsed.achievements.length} logros, ${parsed.playthroughs.length} partidas, ${steps} pasos`, 'ok');
+    } catch (e) {
+      showStatus(`JSON inválido: ${(e as Error).message}`, 'error');
+    }
+  }
+
+  async function uploadManifest() {
+    const igdbId = (document.getElementById('igdb-id') as HTMLInputElement).value.trim();
+    const jsonText = (document.getElementById('manifest-json') as HTMLTextAreaElement).value.trim();
+
+    if (!igdbId || !/^\d+$/.test(igdbId)) { showStatus('IGDB ID debe ser un número.', 'error'); return; }
+    if (!jsonText) { showStatus('Pega el JSON del manifest.', 'error'); return; }
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(jsonText);
+    } catch (e) {
+      showStatus(`JSON inválido: ${(e as Error).message}`, 'error');
+      return;
+    }
+
+    showStatus('Subiendo...', 'info');
+    const btn = document.getElementById('upload-btn') as HTMLButtonElement;
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/api/admin/upload-guide', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ igdb_id: igdbId, manifest: parsed }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        showStatus(`Guía para IGDB ID ${igdbId} subida correctamente.`, 'ok');
+        (document.getElementById('igdb-id') as HTMLInputElement).value = '';
+        (document.getElementById('manifest-json') as HTMLTextAreaElement).value = '';
+        loadGuides();
+      } else if (res.status === 401) {
+        authenticated = false;
+        render();
+      } else {
+        showStatus(`Error: ${result.error}`, 'error');
+      }
+    } catch (e) {
+      showStatus(`Error de red: ${(e as Error).message}`, 'error');
+    }
+    btn.disabled = false;
+  }
+
+  async function loadGuides() {
+    const el = document.getElementById('guides-list')!;
+    try {
+      const res = await fetch('/api/admin/list-guides');
+      const data = await res.json();
+      if (!Array.isArray(data) || data.length === 0) {
+        el.textContent = 'No hay guías en Supabase todavía.';
+        return;
+      }
+      el.innerHTML = data.map((g: { igdb_id: string; title: string }) => {
+        const safeTitle = String(g.title).replace(/[<>&"']/g, c => ({ '<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;' }[c]!));
+        const safeId = String(g.igdb_id).replace(/[^0-9]/g, '');
+        return `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:0.6rem 0; border-bottom:1px solid #111;">
+            <span><span style="color:#f5a623;">${safeId}</span> — ${safeTitle}</span>
+            <a href="/guias/${safeId}" style="color:#444; font-size:0.65rem; text-decoration:none;" target="_blank" rel="noopener">Ver →</a>
+          </div>`;
+      }).join('');
+    } catch {
+      el.textContent = 'Error cargando guías.';
+    }
+  }
+
+  render();
+</script>

@@ -1,0 +1,250 @@
+{
+  "id": "re7",
+  "igdb_id": "19562",
+  "title": "Resident Evil 7: Biohazard",
+  "info": {
+    "difficulty": "4/10",
+    "estimated_time": "20–30 horas",
+    "min_playthroughs": 3,
+    "total_trophies": 38,
+    "breakdown": "22 Bronce · 12 Plata · 3 Oro · 1 Platino",
+    "missable_warning": "31 de 38 trofeos son técnicamente perdibles. No hay selección de capítulos. Haz guardados manuales frecuentes.",
+    "tip": "Las dificultades son apilables. Si terminas en Manicomio, desbloqueas también los trofeos de Fácil y Normal automáticamente."
+  },
+  "achievements": [
+    { "id": "ach_plat",    "type": "platinum", "title": "Biosplattered",                    "description": "Desbloquea todos los demás trofeos del juego base. El DLC no es necesario." },
+    { "id": "ach_g1",     "type": "gold",     "title": "¡Sácame de aquí!",                 "description": "Completa el juego en menos de 4 horas. Juega en Fácil, pausa con Options para detener el tiempo. Alcanzable en ~2h30min." },
+    { "id": "ach_g2",     "type": "gold",     "title": "Gestor de recursos",               "description": "Completa el juego usando el baúl 3 veces o menos. Combínalo con el speedrun. Lucas obliga a usarlo 2 veces, tienes 1 uso libre más." },
+    { "id": "ach_g3",     "type": "gold",     "title": "Curación mínima",                  "description": "Completa el juego usando 3 botiquines o menos. Los Esteroides NO cuentan. Juega en Fácil para minimizar el daño." },
+    { "id": "ach_s1",     "type": "silver",   "title": "¿Quién manda aquí?",               "description": "Completa el juego en dificultad Manicomio. La Sierra Circular es tu mejor arma. Evita peleas innecesarias." },
+    { "id": "ach_s2",     "type": "silver",   "title": "La pesadilla ha terminado",        "description": "Completa el juego en Normal. Se desbloquea automáticamente si terminas en Manicomio." },
+    { "id": "ach_s3",     "type": "silver",   "title": "Jugando sobre seguro",             "description": "Completa el juego en Fácil. Se desbloquea automáticamente si terminas en dificultad superior." },
+    { "id": "ach_s4",     "type": "silver",   "title": "Fin de la noche",                  "description": "Obtén el Final 1: elige curar a Mia tras derrotar al Mutante Jack Baker." },
+    { "id": "ach_s5",     "type": "silver",   "title": "Solo un recuerdo",                 "description": "Obtén el Final 2: elige curar a Zoe tras derrotar al Mutante Jack Baker." },
+    { "id": "ach_s6",     "type": "silver",   "title": "Pelícanos en el bolsillo",         "description": "Recoge las 18 Monedas Antiguas en Fácil o Normal. Deben recogerse TODAS en una sola partida." },
+    { "id": "ach_s7",     "type": "silver",   "title": "Pelícanos locos",                  "description": "Recoge las 33 Monedas Antiguas en Manicomio. Ubicaciones DIFERENTES a Fácil/Normal. Todas en una sola partida." },
+    { "id": "ach_s8",     "type": "silver",   "title": "El diablo está en los detalles",   "description": "Lee todos los documentos (32) en una sola partida. Están en lugares visibles. Espera el mensaje 'Archivo añadido'." },
+    { "id": "ach_s9",     "type": "silver",   "title": "Mr. Nowhere",                      "description": "Destruye las 20 Estatuillas Mr. Everywhere. ¡Se acumulan entre partidas! Busca el sonido de su cabeza." },
+    { "id": "ach_s10",    "type": "silver",   "title": "Sé amable, por favor",             "description": "Ve todos los videocasetes en una sola partida (4 en total): Deporte, Mia, Cumpleaños y Eveline." },
+    { "id": "ach_s11",    "type": "silver",   "title": "1º Premio en la Feria de Ciencias","description": "Fabrica todos los objetos posibles con Fluido Químico y Fluido Químico Fuerte. Puedes tirarlos después." },
+    { "id": "ach_s12",    "type": "silver",   "title": "El tiempo lo cura todo",           "description": "Obtén una mejora de inventario. Las bolsas de mochila amplían el inventario. Una está junto a la grabadora de la Casa vieja." },
+    { "id": "ach_b1",     "type": "bronze",   "title": "Está viva",                        "description": "Viaja a Louisiana. Automático al inicio del juego." },
+    { "id": "ach_b2",     "type": "bronze",   "title": "Bienvenido a la familia, hijo",    "description": "Escapa de la casa de invitados. Automático al completar el prólogo." },
+    { "id": "ach_b3",     "type": "bronze",   "title": "No vas a escapar",                 "description": "Escapa al patio. Automático al obtener las 3 cabezas de perro y abrir la puerta." },
+    { "id": "ach_b4",     "type": "bronze",   "title": "La verdad saldrá a la luz",        "description": "Descubre el secreto de la Casa vieja. Automático al explorar la Casa vieja." },
+    { "id": "ach_b5",     "type": "bronze",   "title": "Será mejor que empieces a correr", "description": "Escapa de la casa de los Baker. Automático al progresar en la historia." },
+    { "id": "ach_b6",     "type": "bronze",   "title": "Hacia las profundidades",          "description": "Escapa del barco. Automático al completar la sección del barco." },
+    { "id": "ach_b7",     "type": "bronze",   "title": "Puertas cerradas",                 "description": "Cierra una puerta abierta tú mismo. Pulsa X en una puerta abierta. Lo harás de forma natural." },
+    { "id": "ach_b8",     "type": "bronze",   "title": "¡Brazos arriba!",                  "description": "Bloquea el ataque de un enemigo. Mantén L1 cerca de un enemigo." },
+    { "id": "ach_b9",     "type": "bronze",   "title": "¡Ajá!",                            "description": "Obtén algo examinando un objeto de cerca. Examina el bolso antes de entrar a la casa, gíralo y pulsa X para sacar el carnet de Mia." },
+    { "id": "ach_b10",    "type": "bronze",   "title": "Maestra de la apertura",           "description": "Usa una ganzúa para abrir algo. La primera ganzúa está en la Lavandería de la Casa principal." },
+    { "id": "ach_b11",    "type": "bronze",   "title": "¡Buen intento!",                   "description": "Coloca un objeto sin relación en un pedestal de sombra. Pon el péndulo del reloj en el pedestal del Salón principal." },
+    { "id": "ach_b12",    "type": "bronze",   "title": "Abre los ojos",                    "description": "Usa psicoestimulantes. Se encuentran con frecuencia, usa uno cuando lo tengas." },
+    { "id": "ach_b13",    "type": "bronze",   "title": "Él está aquí, allá y en todas partes", "description": "Destruye una Estatuilla Mr. Everywhere. Cualquiera de las 20 sirve." },
+    { "id": "ach_b14",    "type": "bronze",   "missable": true, "title": "Can't Catch Me",              "description": "Completa el Videocasete de Mia sin que Marguerite te detecte. Mantente detrás de cobertura siempre. Si te atrapa en un checkpoint, NO cuenta como detección." },
+    { "id": "ach_b15",    "type": "bronze",   "missable": true, "title": "Duck If You Love Life",       "description": "Agáchate bajo el ataque de tijeras de Jack en el Depósito. Espera a que saque las sierras en forma de tijeras y pulsa O para agacharte." },
+    { "id": "ach_b16",    "type": "bronze",   "missable": true, "title": "Things Got Personal",        "description": "Mata a un enemigo con el cuchillo. En la Casa vieja hay insectos grandes en las paredes. Acércate y apuñálalos (mueren de un golpe)." },
+    { "id": "ach_b17",    "type": "bronze",   "missable": true, "title": "Slash Slash, Slashity Slash!", "description": "Quita insectos de una puerta con el cuchillo. Cuando Marguerite ponga arañas en puertas en la Casa vieja, usa L2+R2 para el ataque de estocada." },
+    { "id": "ach_b18",    "type": "bronze",   "missable": true, "title": "¡Fuera, señora B!",          "description": "Haz que Marguerite huya de la Casa vieja. Dispárale con todo lo que tengas tras salir del sótano. Usa el quemador para los insectos. Guarda antes." },
+    { "id": "ach_b19",    "type": "bronze",   "missable": true, "title": "Menos es más",               "description": "Mata a 2 o más enemigos con un solo disparo. Usa la escopeta cuando Marguerite invoque nubes de insectos. Apunta al grupo más denso." },
+    { "id": "ach_b20",    "type": "bronze",   "missable": true, "title": "Fly Swatter",                "description": "Derriba a Marguerite mientras salta hacia ti en el jefe del jardín. Cuando suba a las paredes y salte, dispara con la escopeta en el aire. Guarda antes." },
+    { "id": "ach_b21",    "type": "bronze",   "missable": true, "title": "Out Before Dessert",         "description": "Completa el Videocasete de Cumpleaños en menos de 5 min. Solución: Coge Vela → Código caja: Sierra-Cuervo-Bebé → Llave de cuerda del barril → Quema Muñeca de paja → Enciende vela → Quema cuerda de puerta → Globo en tubería de gas → Dedo+Pluma+Llave en maniquí → Contraseña LOSER → Válvula en tubería → Vela en pastel." },
+    { "id": "ach_b22",    "type": "bronze",   "missable": true, "title": "That's a Spicy Meat-a-ball", "description": "Detona una bomba dentro de un enemigo. En el Barco Varado: deja que un enemigo (brazos finos) te agarre, equipa la bomba, pulsa R2 para metérsela en la boca, luego detónala." }
+  ],
+  "playthroughs": [
+    {
+      "title": "Partida 1 — Normal/Fácil + Coleccionables",
+      "summary": "Partida principal de aprendizaje y recolección. Tómate tu tiempo. Obtén el Final 1 (curar a Mia).",
+      "zones": [
+        {
+          "name": "Antes de empezar",
+          "steps": [
+            { "id": "p1_pre1", "type": "tip",        "description": "Guarda manualmente en múltiples slots al entrar a zonas nuevas. No hay selección de capítulos para volver atrás." },
+            { "id": "p1_pre2", "type": "tip",        "description": "Objetivo: Completar historia en Fácil o Normal + recoger 18 Monedas + destruir 20 Mr. Everywhere + leer 32 Documentos + ver 4 Videocasetes." }
+          ]
+        },
+        {
+          "name": "Casa de Invitados (Prólogo)",
+          "steps": [
+            { "id": "p1_cdi1", "type": "missable",   "description": "¡Ajá! — Examina el bolso antes de entrar a la casa principal. Gíralo y pulsa X para sacar el carnet de Mia." },
+            { "id": "p1_cdi2", "type": "collectible","description": "Mr. Everywhere #1 — Bajo la mesa central de la Lavandería, junto al teléfono." },
+            { "id": "p1_cdi3", "type": "missable",   "description": "Puertas cerradas — Pulsa X en cualquier puerta abierta para cerrarla tú mismo." },
+            { "id": "p1_cdi4", "type": "missable",   "description": "¡Brazos arriba! — Mantén L1 cerca de un enemigo para bloquear su ataque." }
+          ]
+        },
+        {
+          "name": "Casa Principal — Planta Baja",
+          "steps": [
+            { "id": "p1_cp1",  "type": "collectible","description": "Moneda Antigua #1 — Lavandería, dentro de la lata de sardinas junto a la ventana." },
+            { "id": "p1_cp2",  "type": "collectible","description": "Mr. Everywhere #2 — Salón principal, al fondo del pasillo derecho entre trastos y una bicicleta." },
+            { "id": "p1_cp3",  "type": "collectible","description": "Mr. Everywhere #3 — Salón principal, sobre el mueble a mano izquierda nada más entrar." },
+            { "id": "p1_cp4",  "type": "missable",   "description": "Maestra de la apertura — Usa la ganzúa (Lavandería, caja junto a la puerta) en el cajón cerrado del pasillo." },
+            { "id": "p1_cp5",  "type": "missable",   "description": "¡Buen intento! — Pon el péndulo del reloj en el pedestal iluminado del Salón principal (puzle de sombras)." },
+            { "id": "p1_cp6",  "type": "collectible","description": "Mr. Everywhere #4 — Sala de trofeos, encuéntrala tras completar el primer puzle de sombras." },
+            { "id": "p1_cp7",  "type": "collectible","description": "Moneda Antigua #2 — Sala de recreo (2ª planta), junto a la Estatuilla Mr. Everywhere #4, cerca de la mesa de pinball." }
+          ]
+        },
+        {
+          "name": "Casa Principal — Videocasetes",
+          "steps": [
+            { "id": "p1_vc1",  "type": "collectible","description": "Videocasete 1: Cinta de Deporte — Se obtiene automáticamente al inicio. Ponla en el reproductor." },
+            { "id": "p1_vc2",  "type": "missable",   "description": "⚠️ PERDIBLE — Can't Catch Me: Videocasete de Mia (Sala de recreo). Mantente SIEMPRE detrás de cobertura. Si te atrapa en checkpoint no cuenta. Guarda ANTES." },
+            { "id": "p1_vc3",  "type": "collectible","description": "Videocasete 2: Cinta de Mia — Vista durante el trofeo anterior." },
+            { "id": "p1_vc4",  "type": "missable",   "description": "⚠️ PERDIBLE — Out Before Dessert: Videocasete de Cumpleaños (ático del cuarto de los niños). Solución: Sierra–Cuervo–Bebé → LOSER → Válvula → Vela en pastel. Practica antes." },
+            { "id": "p1_vc5",  "type": "collectible","description": "Videocasete 3: Cinta de Cumpleaños — Vista durante el trofeo anterior." }
+          ]
+        },
+        {
+          "name": "Casa Principal — Coleccionables restantes",
+          "steps": [
+            { "id": "p1_cp8",  "type": "collectible","description": "Mr. Everywhere #5 — Sala de recreo, encima de una cesta dorada." },
+            { "id": "p1_cp9",  "type": "collectible","description": "Moneda Antigua #3 — Baño (2ª planta), dentro del retrete. Examínalo con cuidado." },
+            { "id": "p1_cp10", "type": "collectible","description": "Moneda Antigua #4 — Sala sin nombre (junto a Sala de trofeos), dentro del cenicero de la mesa central. Accedes tras resolver el primer puzle de sombras." },
+            { "id": "p1_cp11", "type": "collectible","description": "Moneda Antigua #5 — Área de procesado, al pasar la verja verde mira a la izquierda. Está en el agujero junto al palé de madera." },
+            { "id": "p1_cp12", "type": "collectible","description": "Mr. Everywhere #6 — Área de procesado, en el suelo a la derecha de la puerta que requiere la Llave de la Serpiente." },
+            { "id": "p1_cp13", "type": "collectible","description": "Moneda Antigua #6 — Patio, baja las escaleras nada más salir, gira a la derecha, búscala en una maceta entre los arbustos." },
+            { "id": "p1_cp14", "type": "collectible","description": "Mr. Everywhere #7 — Escalones de la caravana, entre el primer y el segundo escalón." },
+            { "id": "p1_cp15", "type": "collectible","description": "Moneda Antigua #7 — Caravana del patio, dentro del tráiler, junto a la jaula con la Magnum .44." }
+          ]
+        },
+        {
+          "name": "Depósito — Pelea con Jack",
+          "steps": [
+            { "id": "p1_dep1", "type": "missable",   "description": "⚠️ PERDIBLE — Duck If You Love Life: Durante la pelea con Jack en el Depósito, espera a que saque las sierras en tijeras y agáchate (O). Solo ese ataque específico cuenta. Guarda ANTES." }
+          ]
+        },
+        {
+          "name": "Casa Vieja",
+          "steps": [
+            { "id": "p1_cv1",  "type": "missable",   "description": "⚠️ PERDIBLE — Things Got Personal: En la Casa vieja hay insectos grandes en las paredes. Acércate a uno y apuñálalo con el cuchillo (muere de un golpe). Las nubes de insectos pequeños NO cuentan." },
+            { "id": "p1_cv2",  "type": "missable",   "description": "⚠️ PERDIBLE — Slash Slash, Slashity Slash!: Cuando Marguerite ponga arañas en puertas, usa L2+R2 (ataque de estocada) para quitarlas con el cuchillo." },
+            { "id": "p1_cv3",  "type": "missable",   "description": "⚠️ PERDIBLE — ¡Fuera, señora B!: Tras salir del sótano, Marguerite deambula. Dispárale con todo. Usa el quemador para insectos. Guarda ANTES." },
+            { "id": "p1_cv4",  "type": "collectible","description": "Mr. Everywhere #8 — Sala de guardado de la Casa vieja, sobre una balda a la izquierda del baúl, semioculta por unas cortinas." },
+            { "id": "p1_cv5",  "type": "collectible","description": "Moneda Antigua #8 — Pasillo del sótano, en el carrito a la izquierda, tras pasar el agujero después de uno de los nidos de insectos." },
+            { "id": "p1_cv6",  "type": "collectible","description": "Moneda Antigua #9 — Sala de estar de la Casa vieja, sobre la repisa de la chimenea." },
+            { "id": "p1_cv7",  "type": "collectible","description": "Mr. Everywhere #9 — Sala de estar, cuando puedas pasar por la chimenea sube las escaleras que aparecen." },
+            { "id": "p1_cv8",  "type": "collectible","description": "Mr. Everywhere #10 — Túnel donde encuentras la Manivela, en una estantería." },
+            { "id": "p1_cv9",  "type": "collectible","description": "Moneda Antigua #10 — Segunda planta, zona del Altar, en la habitación con el candelabro, sobre la mesita." },
+            { "id": "p1_cv10", "type": "collectible","description": "Mr. Everywhere #11 — Segunda planta, tras la sección del Altar, en la mesita con el candelabro." },
+            { "id": "p1_cv11", "type": "missable",   "description": "⚠️ PERDIBLE — Menos es más: Usa la escopeta cuando Marguerite invoque nubes de insectos. Apunta al grupo más denso para matar 2+ de un disparo." },
+            { "id": "p1_cv12", "type": "missable",   "description": "⚠️ PERDIBLE — Fly Swatter (jefe del jardín): Cuando Marguerite suba a las paredes y salte, dispara con la escopeta en el aire. Guarda ANTES de la pelea." }
+          ]
+        },
+        {
+          "name": "Casa Principal — Misión Tarjetas Llave (Lucas)",
+          "steps": [
+            { "id": "p1_luc1", "type": "collectible","description": "Moneda Antigua #11 — Ático del cuarto de los niños, sube la escalera de mano y gírate 180 grados nada más llegar." },
+            { "id": "p1_luc2", "type": "collectible","description": "Mr. Everywhere #12 — Ático del cuarto de los niños, sube la escalera de mano y gírate 180 grados." },
+            { "id": "p1_luc3", "type": "collectible","description": "Moneda Antigua #12 — Sala del jefe (cuarto de Lucas), dentro del baúl en la habitación de guardar." }
+          ]
+        },
+        {
+          "name": "Barco Varado",
+          "steps": [
+            { "id": "p1_bar1", "type": "missable",   "description": "⚠️ PERDIBLE — That's a Spicy Meat-a-ball: Deja que un enemigo de brazos finos te agarre, equipa la Bomba Remota, pulsa R2 para metérsela en la boca, luego detónala." },
+            { "id": "p1_bar2", "type": "collectible","description": "Moneda Antigua #13 — 3F Sala de control, usa la Ganzúa en la caja cerrada." },
+            { "id": "p1_bar3", "type": "collectible","description": "Moneda Antigua #14 — S2 entre las dos salas de máquinas, abre el contenedor de la pared con el Corrosivo." },
+            { "id": "p1_bar4", "type": "collectible","description": "Mr. Everywhere #13 — Cabinas del barco, busca en las habitaciones accesibles." },
+            { "id": "p1_bar5", "type": "collectible","description": "Mr. Everywhere #14 — Sala de máquinas, en un rincón antes de la zona de Eveline." },
+            { "id": "p1_bar6", "type": "collectible","description": "Mr. Everywhere #15 — Zona de tanques, junto a las tuberías." },
+            { "id": "p1_bar7", "type": "collectible","description": "Videocasete 4: Cinta de Eveline — Se obtiene automáticamente en el barco durante la historia." }
+          ]
+        },
+        {
+          "name": "Mina de Sal y Zona Final",
+          "steps": [
+            { "id": "p1_min1", "type": "collectible","description": "Moneda Antigua #15 — Mina de sal, sigue el camino de las carretas, hay una pasarela encima. La moneda está a la izquierda." },
+            { "id": "p1_min2", "type": "collectible","description": "Mr. Everywhere #16 — Mina de sal, antes de subir hacia las habitaciones de cultivo." },
+            { "id": "p1_min3", "type": "collectible","description": "Mr. Everywhere #17 — Habitaciones de cultivo, en los pasillos de la zona." },
+            { "id": "p1_min4", "type": "collectible","description": "Moneda Antigua #16 — Casa de invitados B1, almacén, en la estantería al lado de la columna central." },
+            { "id": "p1_min5", "type": "collectible","description": "Mr. Everywhere #18 — Casa de invitados B1, estantería opuesta a la columna central." },
+            { "id": "p1_min6", "type": "collectible","description": "Moneda Antigua #17 — Pantano, dentro del refugio, junto a la jaula con el Estabilizador." },
+            { "id": "p1_min7", "type": "collectible","description": "Mr. Everywhere #19 — Zona exterior del pantano, antes de llegar al refugio." },
+            { "id": "p1_min8", "type": "collectible","description": "Mr. Everywhere #20 — Refugio del pantano, dentro del refugio." },
+            { "id": "p1_min9", "type": "collectible","description": "Moneda Antigua #18 — La última moneda. Revisa el mapa del juego para confirmar que tienes las 18." }
+          ]
+        },
+        {
+          "name": "Crafteo y Final 1",
+          "steps": [
+            { "id": "p1_fin1", "type": "missable",   "description": "1º Premio en la Feria de Ciencias: Fabrica TODAS las combinaciones posibles (puedes tirarlas). Combinaciones: Hierba+FC=Botiquín, Hierba+FCF=Botiquín fuerte, Pólvora+FC=Balas pistola, Pólvora+FCF=Balas mejoradas, Combustible+FC=Combustible quemador, Combustible+FCF=Rondas llameantes, Suplementos+FC=Psicoestimulantes, Suplementos+FCF=Rondas Neuro." },
+            { "id": "p1_fin2", "type": "missable",   "description": "Final 1 — Curar a Mia: Tras derrotar al Mutante Jack Baker, elige curar a Mia para el trofeo 'Fin de la noche'." },
+            { "id": "p1_fin3", "type": "tip",        "description": "Comprueba el menú de estadísticas: 18 Monedas, 20 Mr. Everywhere, 32 Documentos, 4 Videocasetes. Si falta algo, revísalo antes de empezar la Partida 2." }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Partida 2 — Speedrun en Fácil",
+      "summary": "Completa en menos de 4 horas. Al terminar desbloqueas la Sierra Circular, esencial para Manicomio. Obtén el Final 2 (curar a Zoe).",
+      "zones": [
+        {
+          "name": "Preparación",
+          "steps": [
+            { "id": "p2_pre1", "type": "tip",        "description": "Juega en Fácil. Pausa con Options para detener el tiempo. Objetivo real: menos de 2h30min para tener margen." },
+            { "id": "p2_pre2", "type": "tip",        "description": "Corre por todo y evita casi todos los combates. Solo recoge objetos esenciales para los puzzles." },
+            { "id": "p2_pre3", "type": "tip",        "description": "Los Esteroides NO cuentan como botiquines para el trofeo Curación mínima." },
+            { "id": "p2_pre4", "type": "tip",        "description": "Soluciones de puzzles listas: Sombra=Estatua de madera (forma de toro). Casete Cumpleaños: Sierra-Cuervo-Bebé → LOSER. Sombra ático: Tetera. Caja fuerte barco: leer las notas del barco." }
+          ]
+        },
+        {
+          "name": "Retos globales a vigilar",
+          "steps": [
+            { "id": "p2_r1",   "type": "missable",   "description": "⚠️ Gestor de recursos — Usa el baúl MÁXIMO 3 veces. Antes del cuarto de cumpleaños de Lucas DEBES vaciar el inventario en el baúl (uso 1). Después recogerlo (uso 2). Tienes 1 uso libre más." },
+            { "id": "p2_r2",   "type": "missable",   "description": "⚠️ Curación mínima — Usa 3 botiquines o menos. Los esteroides y curaciones automáticas de historia NO cuentan. Bloquea con L1 para reducir daño." },
+            { "id": "p2_r3",   "type": "missable",   "description": "⚠️ ¡Sácame de aquí! — Completa en menos de 4 horas. El tiempo NO se resetea al morir. Si mueres, carga un guardado manual." }
+          ]
+        },
+        {
+          "name": "Final de la Partida 2",
+          "steps": [
+            { "id": "p2_fin1", "type": "missable",   "description": "Final 2 — Curar a Zoe: Elige curar a Zoe para el trofeo 'Solo un recuerdo'. Ya tienes el Final 1 de la Partida 1." },
+            { "id": "p2_fin2", "type": "tip",        "description": "Al terminar, la Sierra Circular estará disponible en el baúl de la Partida 3. Tiene munición infinita y mata a los jefes en segundos." }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Partida 3 — Manicomio + 33 Monedas",
+      "summary": "La partida más difícil, pero con la Sierra Circular es manejable. Obtén las 33 Monedas exclusivas de Manicomio (ubicaciones distintas a Fácil/Normal).",
+      "zones": [
+        {
+          "name": "Preparación y diferencias",
+          "steps": [
+            { "id": "p3_pre1", "type": "tip",        "description": "Equipa desde el inicio: Sierra Circular + Esencia de la Defensa (recompensa de los 20 Mr. Everywhere) + Secreto de la Defensa (recompensa de terminar en Normal). Con estos 3, el modo Manicomio es manejable." },
+            { "id": "p3_pre2", "type": "tip",        "description": "Solo puedes guardar usando Cintas de Casete junto a las grabadoras. Úsalas en cuanto las encuentres." },
+            { "id": "p3_pre3", "type": "tip",        "description": "⚠️ Las 33 Monedas de Manicomio están en ubicaciones COMPLETAMENTE DISTINTAS. Sigue una guía en vídeo en paralelo (busca 'RE7 monedas manicomio' en YouTube)." },
+            { "id": "p3_pre4", "type": "tip",        "description": "Usa la Sierra Circular (L2+R2) en TODOS los jefes. Mata a la mayoría en pocos segundos con el ataque giratorio." }
+          ]
+        },
+        {
+          "name": "Jefes — Estrategias Manicomio",
+          "steps": [
+            { "id": "p3_j1",   "type": "tip",        "description": "Mia (Casa de invitados): Bloquea con L1, contraataca una vez y repite. Patrón: bloquear → golpear → bloquear → golpear." },
+            { "id": "p3_j2",   "type": "tip",        "description": "Mia (Ático): Recoge el hacha del pasillo y los 4 paquetes de munición. Dispara a la cabeza. Puedes bloquear la motosierra (se aturde brevemente). Guarda ANTES." },
+            { "id": "p3_j3",   "type": "tip",        "description": "Jack (Garaje): Ganzúa en caja → Llave → Sube al coche → Atropéllalo." },
+            { "id": "p3_j4",   "type": "tip",        "description": "Jack (Depósito): Sierra Circular, lo mata en segundos con L2+R2." },
+            { "id": "p3_j5",   "type": "tip",        "description": "Marguerite (Casa vieja): Dispara a la cabeza con pistola antes de que invoque insectos. Quemador para los bichos." },
+            { "id": "p3_j6",   "type": "tip",        "description": "Marguerite (Jefe Invernadero): Sierra Circular apuntando a la protuberancia del vientre. L2+R2 para el ataque máximo. Apenas podrá atacarte." },
+            { "id": "p3_j7",   "type": "tip",        "description": "Zona del granero (2 enemigos gordos): Rondas Neuro para aturdirlos. Mientras están aturdidos, dispara a la cabeza con munición mejorada. Elimina uno lo antes posible." },
+            { "id": "p3_j8",   "type": "tip",        "description": "Mutante Jack Baker: Puntos débiles por el cuerpo (ojos naranjas). Sierra Circular corriendo alrededor. Bloquea sus ataques. Tras destruir todos los puntos débiles, ataca su ojo con balas mejoradas." },
+            { "id": "p3_j9",   "type": "tip",        "description": "Eveline (Jefe Final): Fase 1: Bloquea ondas y avanza. Fase 2: Dispara a sus ojos hasta que gima 2 veces y te agarre (muévete para que pueda atraparte). Fase 3: Dispara todo a su cara con lanzagranadas o Magnum .44." }
+          ]
+        },
+        {
+          "name": "Monedas Antiguas — Manicomio (33)",
+          "steps": [
+            { "id": "p3_mon1", "type": "collectible","description": "Monedas de Manicomio #1–33: Sigue una guía en vídeo en paralelo. Sus ubicaciones son complejas y distintas a Fácil/Normal. Consulta el menú de estadísticas del juego para ver cuántas llevas." }
+          ]
+        },
+        {
+          "name": "Final de Manicomio",
+          "steps": [
+            { "id": "p3_fin1", "type": "missable",   "description": "Completa la historia en Manicomio para el trofeo '¿Quién manda aquí?' y también desbloqueas 'La pesadilla ha terminado' (Normal) y 'Jugando sobre seguro' (Fácil) automáticamente." },
+            { "id": "p3_fin2", "type": "tip",        "description": "🏆 Si tienes todos los trofeos anteriores, al completar esta partida deberías ver el PLATINO: Biosplattered. ¡Felicidades!" }
+          ]
+        }
+      ]
+    }
+  ]
+}
