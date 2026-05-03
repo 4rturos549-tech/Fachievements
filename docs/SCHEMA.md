@@ -62,18 +62,21 @@ Estructura formal del JSON que se sube a Supabase (`game_guides.manifest`).
 ```ts
 {
   id: string;                   // "p1_cp4" — único en el manifest
-  type: "missable" | "collectible" | "tip" | "main";
+  type: "missable" | "collectible" | "tip" | "main" | "video";
   description: string;          // Acción concreta, 1–2 frases
   unlocks?: string[];           // IDs de achievements que desbloquea este paso
+  video_id?: string;            // Solo para type:"video" — 11 chars de YouTube
+  title?: string;               // Solo para type:"video" — título corto
 }
 ```
 
 ### Tipos de step
 
 - **`missable`** — paso perdible (si lo saltas necesitas otra partida).
-- **`collectible`** — coleccionable opcional (moneda, figura, documento).
+- **`collectible`** — coleccionable opcional individual (moneda, figura, documento). Usa solo si son pocos (≤10 del mismo tipo).
 - **`main`** — paso obligatorio de la historia que vale la pena marcar.
 - **`tip`** — consejo, NO es checkable. Úsalo para soluciones de puzzles, estrategias de jefe, etc.
+- **`video`** — checkable. Embebe un vídeo de YouTube. Requiere `video_id` (11 chars) y opcional `title` corto. Ideal para reemplazar el desglose de muchos coleccionables o mostrar la estrategia visual de un jefe.
 
 ## Reglas de calidad
 

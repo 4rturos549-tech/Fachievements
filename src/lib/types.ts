@@ -1,4 +1,4 @@
-export type StepType = 'missable' | 'collectible' | 'tip' | 'main';
+export type StepType = 'missable' | 'collectible' | 'tip' | 'main' | 'video';
 export type TrophyType = 'platinum' | 'gold' | 'silver' | 'bronze';
 
 export interface Step {
@@ -6,6 +6,10 @@ export interface Step {
   type: StepType;
   description: string;
   unlocks?: string[];
+  /** Solo para type:'video' — id de YouTube (11 chars) o URL completa */
+  video_id?: string;
+  /** Solo para type:'video' — título corto del vídeo (ej: "Ubicaciones de los 141 cómics") */
+  title?: string;
 }
 
 export interface Zone {

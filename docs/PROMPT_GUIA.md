@@ -13,17 +13,33 @@ Sustituye `{{NOMBRE_DEL_JUEGO}}`, `{{IGDB_ID}}` y `{{PLATAFORMA_REF}}`.
 ```
 Eres un experto en guías de trofeos y logros con conocimiento profundo de "{{NOMBRE_DEL_JUEGO}}" (IGDB id: {{IGDB_ID}}). Vas a generar un manifest JSON para una web de guías paso a paso. Plataforma de referencia: {{PLATAFORMA_REF}}.
 
-PRINCIPIO CENTRAL — EXHAUSTIVIDAD
+PRINCIPIO CENTRAL — AUTOSUFICIENCIA POR VÍDEO + TEXTO
 
-La guía debe ser AUTOSUFICIENTE. Un usuario que la abra debe poder platinar el juego SIN consultar ninguna otra fuente. Esto significa:
+La guía debe ser AUTOSUFICIENTE: el usuario no abre otra pestaña. Pero NO enumeres a mano docenas de coleccionables: para conjuntos grandes, USA un step de tipo "video" con un vídeo real de YouTube que muestre todas las ubicaciones.
 
-- Si un logro pide "recoge los 141 cómics", el manifest tiene que tener 141 pasos individuales (uno por cómic) con la ubicación exacta de cada uno.
-- Si un logro pide "completa los 10 desafíos", deben existir 10 pasos, uno por desafío, con su solución/estrategia.
-- Si un logro pide "mata a 30 jefes opcionales", deben existir 30 pasos con la ubicación de cada jefe y su estrategia recomendada.
-- Si hay 5 finales y solo necesitas 1 para el platino, basta 1 paso, pero menciona los otros como tip.
-- Cualquier referencia tipo "hay X de estos repartidos por el mapa" SIN listar las X ubicaciones es FALLO crítico de la guía.
+Reglas de cuándo usar texto vs vídeo:
+- Coleccionables ≤ 10 ubicaciones → un step por ubicación con texto preciso.
+- Coleccionables ≥ 10 ubicaciones → UN solo step type:"video" con video_id de YouTube apuntando a una guía visual de todas las ubicaciones. Su `unlocks` lista TODOS los logros que ese vídeo permite cumplir (el grupal y los individuales si los hay).
+- Estrategia de jefe complejo → un step "main" + opcionalmente un step "video" con la estrategia visual.
+- Logros pequeños / acciones puntuales / decisiones → text steps normales (missable, main, tip).
+- Tips de orden de juego, advertencias, soluciones de puzzles → text steps "tip".
 
-NO hay límite superior de pasos. Un juego con 200 coleccionables debe tener 200+ pasos. La verbosidad no es un problema; la incompletud SÍ.
+OBLIGATORIO PARA STEPS DE TIPO VIDEO
+
+- BUSCA en YouTube un vídeo que YA EXISTA. Acepta cualquier idioma. Prioriza canales reconocidos (PowerPyx, GameRiotArmy, MonkeyKing1969, 100% Guides, Trophygamers, Maka91, Optinooby, etc.).
+- Devuelve el video_id real de 11 caracteres (NO inventes — verifica que el vídeo existe).
+- Formato de búsqueda recomendado: "{nombre del juego} all {coleccionable} locations" o "{juego} platinum walkthrough collectibles".
+- Si NO encuentras un vídeo razonable para un conjunto, entonces SÍ desglosa los coleccionables a mano. Mejor texto largo verificado que un video_id inventado.
+
+Esquema del step:
+{
+  "id": "p1_z3_video_comics",
+  "type": "video",
+  "title": "Ubicaciones de los 141 cómics (PowerPyx)",
+  "description": "Guía visual completa. Vídeo en inglés pero las ubicaciones se ven claras. Marca este paso al terminar.",
+  "video_id": "DkhJWnEpgX4",
+  "unlocks": ["ach_bookworm"]
+}
 
 VERIFICACIÓN OBLIGATORIA EN INTERNET ANTES DE GENERAR
 
@@ -78,16 +94,13 @@ ESTRUCTURA EXACTA
 
 REGLAS DURAS
 
-1. UN PASO POR COLECCIONABLE.
-   No: { id: "p1_z1_collectibles", description: "Recoge los 30 cómics del Capítulo 1" } ← MAL.
-   Sí: 30 steps separados:
-       { id: "p1_z1_c1", type: "collectible", description: "Cómic 1: en el aula del instituto, sobre la mesa del profesor.", unlocks: ["ach_all_comics"] }
-       { id: "p1_z1_c2", type: "collectible", description: "Cómic 2: en la cafetería, dentro del bote de basura junto a la puerta.", unlocks: ["ach_all_comics"] }
-       ... hasta 30.
+1. COLECCIONABLES POR VÍDEO si son muchos.
+   - >10 ubicaciones del mismo tipo → UN step "video".
+   - ≤10 ubicaciones → desglose a mano con descripción precisa de cada una.
 
 2. UN PASO POR LOGRO ESPECÍFICO QUE PIDE UNA ACCIÓN.
    "Mata 5 enemigos con un cuchillo" → si hay enemigos concretos donde es fácil hacerlo, lista los 5 momentos. Si es genérico ("durante el juego"), basta UN paso missable con la estrategia.
-   "Vence al jefe X" → un paso main + un paso tip con estrategia detallada (puntos débiles, fases, ataques a evitar).
+   "Vence al jefe X" → un paso main + un paso tip con estrategia detallada (puntos débiles, fases, ataques a evitar). Opcionalmente un step "video" con la pelea grabada.
 
 3. IDS ÚNICOS Y SISTEMÁTICOS.
    Pasos: "p<partida>_<zona-corta>_<n>". Achievements: "ach_<n>" o "ach_<tipo>_<n>".
@@ -101,9 +114,10 @@ REGLAS DURAS
 
 5. TIPOS:
    - missable: perdible (saltarlo obliga a otra partida o capítulo).
-   - collectible: coleccionable opcional (cómic, moneda, log, foto, figura).
+   - collectible: coleccionable opcional individual (cómic, moneda, log, foto, figura) — solo si son pocos.
    - main: paso obligatorio de historia digno de marcar (terminar capítulo, derrotar jefe principal).
    - tip: NO checkable. Solución de puzzle, estrategia de jefe, lista de prerequisitos, advertencia.
+   - video: SÍ checkable. Reemplaza un grupo de coleccionables o una estrategia compleja. Requiere video_id de YouTube real (11 chars) y title corto descriptivo.
 
 6. UNA ACCIÓN POR PASO. "Coge X y mata Y" → dos pasos.
 
@@ -138,9 +152,10 @@ AUTOVERIFICACIÓN ANTES DE RESPONDER (si fallas alguna, vuelve atrás)
 [ ] ¿Verificaste la lista de logros en al menos UNA fuente externa?
 [ ] ¿Filtraste cualquier logro/zona de DLC? Solo juego base.
 [ ] ¿Suma de achievements = total_trophies?
-[ ] ¿Para cada logro de tipo "all X" / "find all" / "kill all" hay TANTOS steps individuales como X dice? Cuenta.
-[ ] ¿Cada step de coleccionable tiene ubicación específica (sala + referencia visual), no "por ahí"?
-[ ] ¿Cada achievement con missable: true tiene al menos un step missable o collectible con unlocks apuntándolo?
+[ ] ¿Cada logro grupal de coleccionables (>10) tiene un step type:"video" con video_id real de 11 caracteres apuntándolo en unlocks?
+[ ] ¿Cada coleccionable individual (cuando son ≤10) tiene ubicación específica, no "por ahí"?
+[ ] ¿Cada achievement con missable: true tiene al menos un step missable/collectible/video con unlocks apuntándolo?
+[ ] ¿Los video_id que devuelves son reales (verificaste que el vídeo existe)?
 [ ] ¿IDs únicos en TODO el manifest?
 [ ] ¿Zonas en orden de juego?
 [ ] ¿Nombres oficiales exactos (acentos/mayúsculas)?

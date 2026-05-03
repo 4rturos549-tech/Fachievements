@@ -34,7 +34,19 @@ const STEP_STYLE: Record<string, StepStyle> = {
     bg: 'rgba(245,166,35,0.04)', border: 'rgba(245,166,35,0.1)', color: '#f5a623', label: 'Consejo',
     icon: <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>,
   },
+  video: {
+    bg: 'rgba(229,69,69,0.05)', border: 'rgba(229,69,69,0.18)', color: '#e54545', label: 'Vídeo guía',
+    icon: <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>,
+  },
 };
+
+function extractYoutubeId(input: string): string | null {
+  if (!input) return null;
+  const trimmed = input.trim();
+  if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) return trimmed;
+  const m = trimmed.match(/(?:v=|youtu\.be\/|\/embed\/|\/shorts\/)([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
 
 export default function Tracker({ session, manifest, playthroughIndex, mode, spoilerMode, searchQuery, igdbId }: TrackerProps) {
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
@@ -170,10 +182,86 @@ interface StepItemProps {
 function StepItem({ step, done, disabled, onToggle, spoilerMode, searchQuery }: StepItemProps) {
   const [revealed, setRevealed] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const [videoOpen, setVideoOpen] = useState(false);
   const s = STEP_STYLE[step.type] || STEP_STYLE.tip;
   const isTip = step.type === 'tip';
+  const isVideo = step.type === 'video';
   const isCheckable = !isTip && !disabled;
-  const isHidden = !spoilerMode && !isTip && !done && !revealed;
+  const isHidden = !spoilerMode && !isTip && !isVideo && !done && !revealed;
+  const videoId = isVideo && step.video_id ? extractYoutubeId(step.video_id) : null;
+
+  if (isVideo) {
+    return (
+      <div
+        style={{
+          background: done ? 'transparent' : '#0a0a0a',
+          border: `1px solid ${done ? '#141414' : s.border}`,
+          borderRadius: '7px',
+          padding: '0.85rem 1rem',
+          opacity: done ? 0.55 : 1,
+          transition: 'all 0.2s',
+        }}
+      >
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+          <div
+            onClick={e => { e.stopPropagation(); isCheckable && onToggle(step.id, step.type); }}
+            style={{ width: '17px', height: '17px', borderRadius: '4px', border: `2px solid ${done ? '#f5a623' : '#2a2a2a'}`, background: done ? '#f5a623' : 'transparent', flexShrink: 0, marginTop: '2px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: isCheckable ? 'pointer' : 'default', transition: 'all 0.18s' }}
+          >
+            {done && <svg width="8" height="8" viewBox="0 0 12 12" fill="none" stroke="#000" strokeWidth="2.5"><polyline points="1.5,6 5,9.5 10.5,2.5"/></svg>}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ fontSize: '0.58rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '2px 6px', borderRadius: '3px', display: 'inline-flex', alignItems: 'center', gap: '3px', marginBottom: '5px', background: s.bg, color: s.color, border: `1px solid ${s.border}` }}>
+              {s.icon}{s.label}
+            </span>
+            <p style={{ color: done ? '#666' : '#f0ece4', fontSize: '0.88rem', fontWeight: 600, margin: '0 0 4px', textDecoration: done ? 'line-through' : 'none' }}>
+              {step.title || 'Vídeo guía'}
+            </p>
+            <p style={{ color: '#888', fontSize: '0.78rem', margin: '0 0 0.7rem', lineHeight: 1.5, fontWeight: 300 }}>
+              {step.description}
+            </p>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              {videoId && (
+                <button
+                  type="button"
+                  onClick={() => setVideoOpen(o => !o)}
+                  style={{ background: videoOpen ? '#1a1a1a' : 'rgba(229,69,69,0.08)', border: `1px solid ${videoOpen ? '#2a2a2a' : 'rgba(229,69,69,0.3)'}`, color: videoOpen ? '#888' : '#e54545', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.45rem 0.85rem', borderRadius: '6px', cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  {videoOpen ? 'Ocultar vídeo' : 'Ver vídeo'}
+                </button>
+              )}
+              {videoId && (
+                <a
+                  href={`https://www.youtube.com/watch?v=${videoId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ background: 'transparent', border: '1px solid #2a2a2a', color: '#666', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', padding: '0.45rem 0.85rem', borderRadius: '6px', textDecoration: 'none', fontFamily: "'DM Sans', sans-serif" }}
+                >
+                  Abrir en YouTube ↗
+                </a>
+              )}
+              {!videoId && (
+                <p style={{ color: '#555', fontSize: '0.72rem', margin: 0 }}>Vídeo no disponible.</p>
+              )}
+            </div>
+            {videoOpen && videoId && (
+              <div style={{ marginTop: '0.85rem', position: 'relative', aspectRatio: '16/9', borderRadius: '8px', overflow: 'hidden', border: '1px solid #1e1e1e', background: '#000' }}>
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1`}
+                  title={step.title || 'Vídeo guía'}
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const highlight = (text: string) => {
     if (!searchQuery.trim()) return <>{text}</>;

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Tracker from './Tracker';
 import type { Session } from '@supabase/supabase-js';
 import type { Manifest, GameMeta, TrophyType, Achievement } from '../lib/types';
@@ -33,6 +33,22 @@ export default function GameView({ session, manifest, meta, igdbId }: GameViewPr
   const [spoilerMode, setSpoilerMode] = useState(false);
   const [stepSearch, setStepSearch] = useState('');
   const [shareMsg, setShareMsg] = useState('');
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+
+  const screenshots = (meta.screenshots ?? []).slice(0, 6);
+  const lightboxOpen = lightboxIdx !== null;
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightboxIdx(null);
+      if (e.key === 'ArrowRight' && lightboxIdx !== null) setLightboxIdx(i => (i! + 1) % screenshots.length);
+      if (e.key === 'ArrowLeft' && lightboxIdx !== null) setLightboxIdx(i => (i! - 1 + screenshots.length) % screenshots.length);
+    };
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKey);
+    return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', onKey); };
+  }, [lightboxOpen, lightboxIdx, screenshots.length]);
 
   const missablesInPlaythrough = manifest?.playthroughs?.[activePlaythrough]?.zones
     ?.flatMap(z => z.steps)
@@ -131,12 +147,20 @@ export default function GameView({ session, manifest, meta, igdbId }: GameViewPr
 
       {activeTab === 'info' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          {meta.screenshots?.length > 0 && (
+          {screenshots.length > 0 && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '0.6rem' }}>
-              {meta.screenshots.slice(0, 6).map((img, i) => (
-                <div key={i} style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid #1a1a1a', aspectRatio: '16/9' }}>
-                  <img src={img} alt={`${meta.name} captura ${i + 1}`} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </div>
+              {screenshots.map((img, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setLightboxIdx(i)}
+                  style={{ all: 'unset', cursor: 'zoom-in', borderRadius: '8px', overflow: 'hidden', border: '1px solid #1a1a1a', aspectRatio: '16/9', position: 'relative', display: 'block' }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = '#7a4e0d')}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = '#1a1a1a')}
+                  aria-label={`Ampliar captura ${i + 1}`}
+                >
+                  <img src={img} alt={`${meta.name} captura ${i + 1}`} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                </button>
               ))}
             </div>
           )}
@@ -280,6 +304,56 @@ export default function GameView({ session, manifest, meta, igdbId }: GameViewPr
           ) : (
             <EmptyState title="Guía en camino" desc={`Aún no hay una guía para ${meta.name}. Añade un manifest JSON.`} />
           )}
+        </div>
+      )}
+
+      {lightboxOpen && lightboxIdx !== null && (
+        <div
+          onClick={() => setLightboxIdx(null)}
+          role="dialog"
+          aria-modal="true"
+          style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '3rem 1.5rem', cursor: 'zoom-out', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
+        >
+          <button
+            type="button"
+            onClick={e => { e.stopPropagation(); setLightboxIdx(null); }}
+            aria-label="Cerrar"
+            style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'rgba(0,0,0,0.6)', border: '1px solid #2a2a2a', color: '#f0ece4', width: '38px', height: '38px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+
+          {screenshots.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={e => { e.stopPropagation(); setLightboxIdx(i => (i! - 1 + screenshots.length) % screenshots.length); }}
+                aria-label="Anterior"
+                style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.6)', border: '1px solid #2a2a2a', color: '#f0ece4', width: '42px', height: '42px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <button
+                type="button"
+                onClick={e => { e.stopPropagation(); setLightboxIdx(i => (i! + 1) % screenshots.length); }}
+                aria-label="Siguiente"
+                style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.6)', border: '1px solid #2a2a2a', color: '#f0ece4', width: '42px', height: '42px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </>
+          )}
+
+          <img
+            src={screenshots[lightboxIdx]}
+            alt={`${meta.name} captura ${lightboxIdx + 1}`}
+            onClick={e => e.stopPropagation()}
+            style={{ maxWidth: 'min(95vw, 1400px)', maxHeight: '88vh', objectFit: 'contain', borderRadius: '6px', boxShadow: '0 20px 60px rgba(0,0,0,0.6)', cursor: 'default' }}
+          />
+
+          <span style={{ position: 'absolute', bottom: '1rem', left: '50%', transform: 'translateX(-50%)', fontFamily: "'DM Mono', monospace", fontSize: '0.7rem', color: '#888', letterSpacing: '0.1em', background: 'rgba(0,0,0,0.6)', padding: '0.4rem 0.8rem', borderRadius: '99px', border: '1px solid #2a2a2a' }}>
+            {lightboxIdx + 1} / {screenshots.length}
+          </span>
         </div>
       )}
     </div>
