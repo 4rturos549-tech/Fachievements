@@ -17,6 +17,7 @@ const {
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).toString();
+const year = new Date().getFullYear();
 ---
 <!doctype html>
 <html lang="es">
@@ -50,12 +51,75 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).toString(
       .nav-logo { font-family:'Bebas Neue',sans-serif; font-size:1.35rem; letter-spacing:0.1em; color:#f5a623; text-decoration:none; }
       .nav-logo-small { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:0.1em; color:#f5a623; text-decoration:none; opacity:0.6; transition:opacity 0.2s; }
       .nav-logo-small:hover { opacity:1; }
+
+      /* Grano global — overlay SVG via data-uri, no requests */
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0.04;
+        mix-blend-mode: overlay;
+        background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+      }
+
+      /* Footer */
+      footer.site-footer {
+        position: relative;
+        z-index: 2;
+        border-top: 1px solid #1a1a1a;
+        background: #060606;
+        padding: 2.5rem 0 2rem;
+        margin-top: 4rem;
+      }
+      footer.site-footer .footer-inner {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+      }
+      footer.site-footer .footer-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        font-family: 'DM Mono', monospace;
+        font-size: 0.7rem;
+        letter-spacing: 0.12em;
+        color: #444;
+        text-transform: uppercase;
+      }
+      footer.site-footer .footer-brand .dot { width: 5px; height: 5px; border-radius: 50%; background: #f5a623; box-shadow: 0 0 10px #f5a623; }
+      footer.site-footer .footer-links {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        font-family: 'DM Mono', monospace;
+        font-size: 0.68rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      footer.site-footer .footer-links a { color: #555; text-decoration: none; transition: color 0.2s; }
+      footer.site-footer .footer-links a:hover { color: #f5a623; }
+      footer.site-footer .footer-credit { color: #2a2a2a; font-size: 0.65rem; }
+      footer.site-footer .footer-credit strong { color: #f5a623; font-weight: 600; }
+
+      /* Sticky footer: el wrapper crece para empujar el footer al fondo en páginas cortas */
+      .site-content { flex: 1 0 auto; position: relative; z-index: 2; }
+      /* main es block normal; max-width + margin:auto lo centra a 1080 sin que las auto-margins de flex lo encojan */
+
+      /* Garantizar que nav y footer quedan por encima del grano */
+      nav, footer { position: relative; z-index: 2; }
     </style>
   </head>
-  <body style="background:#080808; color:#f0ece4; font-family:'DM Sans',sans-serif; min-height:100vh; font-weight:300;">
+  <body style="background:#080808; color:#f0ece4; font-family:'DM Sans',sans-serif; min-height:100vh; font-weight:300; display:flex; flex-direction:column;">
 
     <nav style="position:sticky; top:0; z-index:100; background:rgba(8,8,8,0.94); border-bottom:1px solid #1e1e1e; backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);">
-      <div style="max-width:1100px; margin:0 auto; padding:0 1.5rem; height:54px; display:flex; align-items:center; justify-content:space-between;">
+      <div style="max-width:1080px; margin:0 auto; padding:0 1.5rem; height:54px; display:flex; align-items:center; justify-content:space-between;">
 
         <div style="display:flex; align-items:center; gap:1.5rem;">
           {backHref ? (
@@ -81,7 +145,28 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).toString(
       </div>
     </nav>
 
-    <slot />
+    <div class="site-content">
+      <slot />
+    </div>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="dot"></span>
+          <span>Fachievements · {year}</span>
+        </div>
+
+        <div class="footer-links">
+          <a href="/">Inicio</a>
+          <a href="/perfil">Perfil</a>
+          <a href="https://www.igdb.com/" target="_blank" rel="noopener noreferrer">IGDB</a>
+        </div>
+
+        <div class="footer-credit">
+          Hecho por <strong>chefsit0DEV</strong> · Datos por IGDB
+        </div>
+      </div>
+    </footer>
 
   </body>
 </html>

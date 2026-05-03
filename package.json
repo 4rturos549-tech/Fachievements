@@ -13,7 +13,6 @@
     "validate": "node scripts/validate-manifest.mjs"
   },
   "dependencies": {
-    "@astrojs/node": "^10.0.4",
     "@astrojs/react": "^5.0.3",
     "@astrojs/vercel": "^10.0.4",
     "@supabase/supabase-js": "^2.103.0",

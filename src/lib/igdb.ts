@@ -110,6 +110,20 @@ export async function searchGames(query: string): Promise<GameSearchResult[]> {
   }));
 }
 
+export async function getCoversByIds(ids: number[]): Promise<Record<number, string | null>> {
+  const cleanIds = ids.map(Number).filter(n => Number.isInteger(n) && n > 0);
+  if (cleanIds.length === 0) return {};
+  const data = await igdbQuery<RawGame[]>(
+    'games',
+    `fields id, cover.image_id; where id = (${cleanIds.join(',')}); limit ${cleanIds.length};`
+  );
+  const out: Record<number, string | null> = {};
+  for (const g of data) {
+    out[g.id] = g.cover ? `https://images.igdb.com/igdb/image/upload/t_cover_big/${g.cover.image_id}.jpg` : null;
+  }
+  return out;
+}
+
 export async function getFeaturedGames(): Promise<FeaturedGame[]> {
   const data = await igdbQuery<RawGame[]>(
     'games',

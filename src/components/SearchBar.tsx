@@ -46,6 +46,25 @@ const S = {
   } as React.CSSProperties,
 };
 
+const SHIMMER_KEYFRAMES = `
+  @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+  @keyframes shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .skeleton-card {
+    aspect-ratio: 3/4;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #0d0d0d 0%, #1a1a1a 50%, #0d0d0d 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+    border: 1px solid #161616;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton-card { animation: none; }
+  }
+`;
+
 export default function SearchBar() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<GameSearchResult[]>([]);
@@ -86,9 +105,11 @@ export default function SearchBar() {
     };
   }, [query]);
 
+  const showSkeleton = loading && results.length === 0;
+
   return (
     <div style={S.wrap}>
-      <style>{`@keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }`}</style>
+      <style>{SHIMMER_KEYFRAMES}</style>
 
       <div style={S.inputWrap}>
         <svg style={{ position: 'absolute', left: '1.1rem', top: '50%', transform: 'translateY(-50%)', color: focused ? '#f5a623' : '#3a3a3a', transition: 'color 0.2s', pointerEvents: 'none' }} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -112,7 +133,15 @@ export default function SearchBar() {
         {loading && <div style={S.spinner} />}
       </div>
 
-      {results.length > 0 && (
+      {showSkeleton && (
+        <div style={S.grid} aria-busy="true" aria-label="Cargando resultados">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="skeleton-card" />
+          ))}
+        </div>
+      )}
+
+      {!showSkeleton && results.length > 0 && (
         <div style={S.grid}>
           {results.map(game => (
             <a

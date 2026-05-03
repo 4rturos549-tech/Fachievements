@@ -46,7 +46,7 @@ const description = `Guía paso a paso, lista de logros y trofeos perdibles de $
         <div style="position:absolute; inset:0; background:linear-gradient(to bottom, transparent 0%, #080808 85%);"></div>
       </div>
     )}
-    <div style="position:relative; z-index:1; max-width:1100px; margin:0 auto; padding:2.5rem 1.5rem 3rem; display:flex; gap:2rem; align-items:flex-end; flex-wrap:wrap;">
+    <div style="position:relative; z-index:1; max-width:1080px; margin:0 auto; padding:2.5rem 1.5rem 3rem; display:flex; gap:2rem; align-items:flex-end; flex-wrap:wrap;">
       {meta.coverUrl && (
         <img src={meta.coverUrl} alt={`Carátula de ${meta.name}`} style="width:120px; border-radius:8px; box-shadow:0 16px 48px rgba(0,0,0,0.7); border:1px solid #2a2a2a; flex-shrink:0;" />
       )}
@@ -71,7 +71,7 @@ const description = `Guía paso a paso, lista de logros y trofeos perdibles de $
     </div>
   </div>
 
-  <main style="max-width:900px; margin:0 auto; padding:2rem 1.5rem 6rem;">
+  <main style="max-width:1080px; margin:0 auto; padding:2rem 1.5rem 6rem;">
     <App manifest={manifest} meta={meta} igdbId={id} client:load />
   </main>
 </Layout>
