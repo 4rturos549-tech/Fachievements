@@ -1,0 +1,217 @@
+---
+export const prerender = false;
+import Layout from '../../layouts/Layout.astro';
+import { createServerSupabase } from '../../lib/supabase';
+import { getCoversByIds } from '../../lib/igdb';
+import { ACCENTS, type Manifest, type UserProfile, type AccentColor } from '../../lib/types';
+import { computeStreaks } from '../../lib/streak';
+import { computeBadges, avatarFrame } from '../../lib/badges';
+
+const handle = Astro.params.handle?.toLowerCase().trim();
+if (!handle || !/^[a-z0-9_]{3,24}$/.test(handle)) return Astro.redirect('/');
+
+const supabase = createServerSupabase();
+const { data: profile } = await supabase.from('profiles').select('*').eq('handle', handle).maybeSingle();
+const p = profile as UserProfile | null;
+if (!p) return new Response('Perfil no encontrado', { status: 404 });
+
+const { data: stepsRaw } = await supabase
+  .from('completed_steps')
+  .select('step_id, igdb_id, created_at')
+  .eq('user_id', p.id)
+  .order('created_at', { ascending: false });
+
+const steps = (stepsRaw ?? []) as { step_id: string; igdb_id: string | null; created_at: string }[];
+const byGame: Record<string, number> = {};
+for (const s of steps) if (s.igdb_id) byGame[s.igdb_id] = (byGame[s.igdb_id] ?? 0) + 1;
+const igdbIds = Object.keys(byGame);
+
+let games: Array<{ igdbId: string; name: string; completed: number; total: number; percentage: number; coverUrl: string | null }> = [];
+const allIds = new Set<number>(igdbIds.map(Number));
+if (p.avatar_igdb_id) allIds.add(p.avatar_igdb_id);
+if (p.banner_igdb_id) allIds.add(p.banner_igdb_id);
+(p.showcase_games ?? []).forEach(id => allIds.add(id));
+
+let covers: Record<number, string | null> = {};
+let nameMap: Record<number, string> = {};
+
+if (igdbIds.length > 0) {
+  const { data: guides } = await supabase.from('game_guides').select('igdb_id, manifest').in('igdb_id', igdbIds);
+  const guidesTyped = (guides ?? []) as { igdb_id: string; manifest: Manifest }[];
+  for (const g of guidesTyped) nameMap[Number(g.igdb_id)] = g.manifest.title;
+
+  games = igdbIds.map(igdbId => {
+    const guide = guidesTyped.find(g => g.igdb_id === igdbId);
+    let total = 0;
+    let name = `Juego ${igdbId}`;
+    if (guide?.manifest) {
+      name = guide.manifest.title;
+      total = guide.manifest.playthroughs.reduce(
+        (acc, pp) => acc + pp.zones.reduce((z, zone) => z + zone.steps.filter(s => s.type !== 'tip').length, 0), 0
+      );
+    }
+    const completed = byGame[igdbId] ?? 0;
+    const percentage = total > 0 ? Math.min(Math.round((completed / total) * 100), 100) : 0;
+    return { igdbId, name, completed, total, percentage, coverUrl: null };
+  });
+}
+
+if (allIds.size > 0) {
+  try { covers = await getCoversByIds(Array.from(allIds)); } catch {}
+  games = games.map(g => ({ ...g, coverUrl: covers[Number(g.igdbId)] ?? null }));
+}
+games.sort((a, b) => b.percentage - a.percentage);
+
+const accent = ACCENTS[(p.accent_color ?? 'orange') as AccentColor];
+const platinos = games.filter(g => g.percentage === 100).length;
+const frame = avatarFrame(platinos);
+const streaks = computeStreaks(steps.map(s => s.created_at));
+const badges = computeBadges({ totalSteps: steps.length, totalPlatinos: platinos, totalGames: games.length, longestStreak: streaks.longest });
+
+const username = p.display_name || p.handle;
+const avatarUrl = p.avatar_igdb_id ? covers[p.avatar_igdb_id] : null;
+const bannerUrl = p.banner_igdb_id ? covers[p.banner_igdb_id] : null;
+const initial = username.charAt(0).toUpperCase();
+
+const recentPlatinos = games.filter(g => g.percentage === 100).slice(0, 4);
+const showcaseGames = (p.showcase_games ?? []).map(id => ({ id, name: nameMap[id] ?? `#${id}`, coverUrl: covers[id] ?? null }));
+const currentGame = p.current_game_id ? games.find(g => g.igdbId === p.current_game_id) : games.find(g => g.percentage > 0 && g.percentage < 100);
+
+const description = p.bio
+  ? `${username} · ${p.bio}`
+  : `Perfil de ${username} en Fachievements · ${platinos} platino${platinos === 1 ? '' : 's'} · ${steps.length} pasos completados.`;
+---
+
+<Layout title={`${username} (@${p.handle}) — Fachievements`} description={description} backHref="/" backLabel="Inicio" ogImage={avatarUrl ?? bannerUrl ?? undefined}>
+  <main style="max-width:1080px; margin:0 auto; padding:3rem 1.5rem 6rem;">
+
+    <div style={`position:relative; border-radius:14px; overflow:hidden; border:1px solid ${accent.hex}22; background:#0a0a0a; min-height:200px;`}>
+      {bannerUrl && (
+        <div aria-hidden="true" style="position:absolute; inset:0;">
+          <img src={bannerUrl} alt="" style="width:100%; height:100%; object-fit:cover; filter:blur(2px) saturate(0.85); transform:scale(1.05);" />
+          <div style="position:absolute; inset:0; background:linear-gradient(to right, rgba(10,10,10,0.95), rgba(10,10,10,0.5), rgba(10,10,10,0.85));"></div>
+        </div>
+      )}
+      <div style="position:relative; display:flex; align-items:center; gap:1.25rem; padding:1.75rem; flex-wrap:wrap;">
+        <div style="position:relative; flex-shrink:0;">
+          <div style={`width:84px; height:84px; background:${avatarUrl ? '#000' : `linear-gradient(135deg, ${accent.soft}, transparent)`}; border:2px solid ${frame ? frame.color : accent.hex}55; border-radius:14px; overflow:hidden; display:flex; align-items:center; justify-content:center; font-family:'Bebas Neue',sans-serif; font-size:2.6rem; color:${accent.hex}; box-shadow:${frame ? `0 0 24px ${frame.color}44` : 'none'};`}>
+            {avatarUrl ? <img src={avatarUrl} alt="" style="width:100%; height:100%; object-fit:cover;" /> : initial}
+          </div>
+          {frame && (
+            <span style={`position:absolute; bottom:-7px; left:50%; transform:translateX(-50%); background:#080808; border:1px solid ${frame.color}; color:${frame.color}; font-size:0.55rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:2px 7px; border-radius:4px; white-space:nowrap;`}>
+              {frame.label}
+            </span>
+          )}
+        </div>
+        <div style="flex:1; min-width:200px;">
+          <p style={`font-family:'DM Mono',monospace; font-size:0.62rem; letter-spacing:0.18em; color:${accent.hex}; text-transform:uppercase; margin:0 0 4px;`}>
+            {platinos > 0 ? `Cazador · ${platinos} platino${platinos === 1 ? '' : 's'}` : 'Cazador'}
+            {streaks.current > 0 && <span style="color:#666; margin-left:0.5rem;"> · racha {streaks.current}d</span>}
+          </p>
+          <p style="font-family:'Bebas Neue',sans-serif; font-size:1.85rem; letter-spacing:0.06em; color:#f0ece4; margin:0; line-height:1;">{username}</p>
+          <p style="font-size:0.7rem; color:#444; margin:4px 0 0; font-family:'DM Mono',monospace;">@{p.handle}</p>
+          {p.bio && <p style="font-size:0.85rem; color:#888; margin:0.7rem 0 0; max-width:540px; line-height:1.55;">{p.bio}</p>}
+        </div>
+      </div>
+    </div>
+
+    {(currentGame || showcaseGames.length > 0 || recentPlatinos.length > 0) && (
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:1rem; margin-top:1.5rem;">
+        {currentGame && (
+          <div style="background:#0a0a0a; border:1px solid #141414; border-radius:10px; padding:1rem;">
+            <p style={`font-family:'DM Mono',monospace; font-size:0.6rem; letter-spacing:0.18em; color:${accent.hex}; text-transform:uppercase; margin:0 0 0.7rem;`}>En este momento</p>
+            <a href={`/guias/${currentGame.igdbId}`} style="display:flex; gap:0.75rem; align-items:center; text-decoration:none;">
+              {currentGame.coverUrl && <img src={currentGame.coverUrl} alt="" style="width:54px; height:74px; object-fit:cover; border-radius:4px;" />}
+              <div style="flex:1;">
+                <p style="color:#f0ece4; font-weight:600; font-size:0.88rem; margin:0 0 4px;">{currentGame.name}</p>
+                <div style="background:#1a1a1a; height:3px; border-radius:99px; overflow:hidden; margin-bottom:4px;"><div style={`width:${currentGame.percentage}%; height:100%; background:${accent.hex};`}></div></div>
+                <p style={`color:${accent.hex}; font-family:'DM Mono',monospace; font-size:0.7rem; margin:0;`}>{currentGame.percentage}% · {currentGame.completed}/{currentGame.total}</p>
+              </div>
+            </a>
+          </div>
+        )}
+        {recentPlatinos.length > 0 && (
+          <div style="background:#0a0a0a; border:1px solid #141414; border-radius:10px; padding:1rem; grid-column:span 2;">
+            <p style={`font-family:'DM Mono',monospace; font-size:0.6rem; letter-spacing:0.18em; color:${accent.hex}; text-transform:uppercase; margin:0 0 0.7rem;`}>Platinos</p>
+            <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:0.5rem;">
+              {recentPlatinos.map(g => (
+                <a href={`/guias/${g.igdbId}`} title={g.name} style="aspect-ratio:3/4; border-radius:5px; overflow:hidden; background:#0d0d0d; display:block;">
+                  {g.coverUrl && <img src={g.coverUrl} alt={g.name} style="width:100%; height:100%; object-fit:cover;" />}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+        {showcaseGames.length > 0 && (
+          <div style="background:#0a0a0a; border:1px solid #141414; border-radius:10px; padding:1rem; grid-column:span 2;">
+            <p style={`font-family:'DM Mono',monospace; font-size:0.6rem; letter-spacing:0.18em; color:${accent.hex}; text-transform:uppercase; margin:0 0 0.7rem;`}>Juegos destacados</p>
+            <div style={`display:grid; grid-template-columns:repeat(${Math.max(showcaseGames.length, 2)}, 1fr); gap:0.5rem;`}>
+              {showcaseGames.map(g => (
+                <a href={`/guias/${g.id}`} title={g.name} style="aspect-ratio:3/4; border-radius:5px; overflow:hidden; background:#0d0d0d; display:block;">
+                  {g.coverUrl && <img src={g.coverUrl} alt={g.name} style="width:100%; height:100%; object-fit:cover;" />}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    )}
+
+    <div style="margin-top:2rem;">
+      <p style="font-family:'DM Mono',monospace; font-size:0.62rem; letter-spacing:0.18em; color:#333; text-transform:uppercase; margin-bottom:0.85rem;">Estadísticas</p>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:0.6rem;">
+        <div style="background:#0a0a0a; border:1px solid #141414; border-radius:10px; padding:1.1rem 0.75rem; text-align:center;">
+          <p style={`font-family:'Bebas Neue',sans-serif; font-size:2.2rem; color:${accent.hex}; margin:0; line-height:1;`}>{steps.length}</p>
+          <p style="font-size:0.6rem; color:#333; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-top:5px;">Pasos completados</p>
+        </div>
+        <div style="background:#0a0a0a; border:1px solid #141414; border-radius:10px; padding:1.1rem 0.75rem; text-align:center;">
+          <p style="font-family:'Bebas Neue',sans-serif; font-size:2.2rem; color:#4a9eff; margin:0; line-height:1;">{games.length}</p>
+          <p style="font-size:0.6rem; color:#333; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-top:5px;">Juegos en progreso</p>
+        </div>
+        <div style="background:#0a0a0a; border:1px solid #141414; border-radius:10px; padding:1.1rem 0.75rem; text-align:center;">
+          <p style="font-family:'Bebas Neue',sans-serif; font-size:2.2rem; color:#e8d5ff; margin:0; line-height:1;">{platinos}</p>
+          <p style="font-size:0.6rem; color:#333; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-top:5px;">Platinos</p>
+        </div>
+        <div style="background:#0a0a0a; border:1px solid #141414; border-radius:10px; padding:1.1rem 0.75rem; text-align:center;">
+          <p style="font-family:'Bebas Neue',sans-serif; font-size:2.2rem; color:#4ade80; margin:0; line-height:1;">{streaks.longest}</p>
+          <p style="font-size:0.6rem; color:#333; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; margin-top:5px;">Racha más larga</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:2rem;">
+      <p style="font-family:'DM Mono',monospace; font-size:0.62rem; letter-spacing:0.18em; color:#333; text-transform:uppercase; margin-bottom:0.85rem;">Insignias</p>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.5rem;">
+        {badges.map(b => (
+          <div title={b.description} style={`display:flex; align-items:center; gap:0.7rem; background:#0a0a0a; border:1px solid ${b.unlocked ? accent.hex + '44' : '#141414'}; border-radius:8px; padding:0.7rem 0.9rem; opacity:${b.unlocked ? 1 : 0.4};`}>
+            <div style={`width:32px; height:32px; border-radius:50%; background:${b.unlocked ? accent.soft : '#0d0d0d'}; border:1px solid ${b.unlocked ? accent.hex + '66' : '#1a1a1a'}; display:flex; align-items:center; justify-content:center; color:${b.unlocked ? accent.hex : '#333'}; font-size:0.85rem; flex-shrink:0;`}>{b.icon}</div>
+            <div style="flex:1; min-width:0;">
+              <p style={`color:${b.unlocked ? '#f0ece4' : '#444'}; font-size:0.78rem; font-weight:600; margin:0;`}>{b.title}</p>
+              <p style="color:#444; font-size:0.66rem; margin:2px 0 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{b.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {games.length > 0 && (
+      <div style="margin-top:2rem;">
+        <p style="font-family:'DM Mono',monospace; font-size:0.62rem; letter-spacing:0.18em; color:#333; text-transform:uppercase; margin-bottom:0.85rem;">Biblioteca</p>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:0.85rem;">
+          {games.map(g => (
+            <a href={`/guias/${g.igdbId}`} title={g.name} style="position:relative; display:block; border-radius:8px; overflow:hidden; background:#0d0d0d; border:1px solid #1a1a1a; text-decoration:none;">
+              <div style="aspect-ratio:3/4; overflow:hidden;">
+                {g.coverUrl ? <img src={g.coverUrl} alt={g.name} style="width:100%; height:100%; object-fit:cover;" loading="lazy" /> : null}
+              </div>
+              <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.92), transparent 60%); padding:0.7rem; display:flex; flex-direction:column; justify-content:flex-end;">
+                <p style="color:#e8e4dc; font-size:0.75rem; font-weight:600; margin:0;">{g.name}</p>
+                <p style={`color:${g.percentage === 100 ? accent.hex : '#888'}; font-family:'DM Mono',monospace; font-size:0.62rem; margin:2px 0 0;`}>{g.percentage}%</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+  </main>
+</Layout>
