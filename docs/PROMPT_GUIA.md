@@ -18,11 +18,27 @@ PRINCIPIO CENTRAL — AUTOSUFICIENCIA POR VÍDEO + TEXTO
 La guía debe ser AUTOSUFICIENTE: el usuario no abre otra pestaña. Pero NO enumeres a mano docenas de coleccionables: para conjuntos grandes, USA un step de tipo "video" con un vídeo real de YouTube que muestre todas las ubicaciones.
 
 Reglas de cuándo usar texto vs vídeo:
-- Coleccionables ≤ 10 ubicaciones → un step por ubicación con texto preciso.
-- Coleccionables ≥ 10 ubicaciones → UN solo step type:"video" con video_id de YouTube apuntando a una guía visual de todas las ubicaciones. Su `unlocks` lista TODOS los logros que ese vídeo permite cumplir (el grupal y los individuales si los hay).
+- Coleccionables ≤ 10 ubicaciones de UNA categoría → un step por ubicación con texto preciso.
+- Coleccionables ≥ 10 ubicaciones de UNA categoría → UN step type:"video" para ESA categoría. Su `unlocks` lista los logros que ese vídeo cubre.
 - Estrategia de jefe complejo → un step "main" + opcionalmente un step "video" con la estrategia visual.
 - Logros pequeños / acciones puntuales / decisiones → text steps normales (missable, main, tip).
 - Tips de orden de juego, advertencias, soluciones de puzzles → text steps "tip".
+
+CRÍTICO — UN VÍDEO POR CATEGORÍA DE COLECCIONABLE, NO UN VÍDEO GLOBAL
+
+Si el juego tiene 55 mochilas + 47 monumentos + 17 estaciones de investigación + 11 muñecas + 12 palomas, NECESITAS 5 STEPS DE VÍDEO SEPARADOS, uno por cada categoría. Cada uno con su propio video_id (idealmente vídeos distintos cada uno enfocado a esa categoría) y sus unlocks específicos.
+
+Ejemplo CORRECTO (Marvel's Spider-Man PS4):
+- Step video 1: "Las 55 Mochilas" → unlocks: ["ach_backpacker", "ach_lost_and_found"]
+- Step video 2: "Los 47 Monumentos" → unlocks: ["ach_photo_op"]
+- Step video 3: "Las 17 Estaciones de Investigación" → unlocks: ["ach_rd"]
+- Step video 4: "Las 11 Muñecas de Black Cat (Stakeouts)" → unlocks: ["ach_yours_cat", "ach_dark_suit"]
+- Step video 5: "Las 12 Palomas de Howard" → unlocks: ["ach_pigeon_hunter"]
+
+Ejemplo INCORRECTO:
+- 1 step video con "Todas las ubicaciones de coleccionables" → MAL. El usuario quiere ver el vídeo de mochilas APARTE del de monumentos para no buscar en un vídeo de 2 horas.
+
+Si el mismo creador tiene una playlist por categoría, mejor. Si no, busca vídeos distintos por cada (PowerPyx suele subir uno por categoría: "All Backpack Locations", "All Landmarks", "All Research Stations", etc.).
 
 OBLIGATORIO PARA STEPS DE TIPO VIDEO
 
@@ -94,9 +110,11 @@ ESTRUCTURA EXACTA
 
 REGLAS DURAS
 
-1. COLECCIONABLES POR VÍDEO si son muchos.
-   - >10 ubicaciones del mismo tipo → UN step "video".
-   - ≤10 ubicaciones → desglose a mano con descripción precisa de cada una.
+1. UN VÍDEO POR CATEGORÍA DISTINTA DE COLECCIONABLE.
+   - >10 ubicaciones del mismo tipo → UN step "video" PARA ESA CATEGORÍA.
+   - Si hay N categorías distintas con >10 cada una → N steps "video" separados.
+   - ≤10 ubicaciones de una categoría → desglose a mano con descripción precisa de cada una.
+   - NUNCA agrupes categorías en un solo vídeo. Cada categoría tiene su step propio.
 
 2. UN PASO POR LOGRO ESPECÍFICO QUE PIDE UNA ACCIÓN.
    "Mata 5 enemigos con un cuchillo" → si hay enemigos concretos donde es fácil hacerlo, lista los 5 momentos. Si es genérico ("durante el juego"), basta UN paso missable con la estrategia.
@@ -152,7 +170,8 @@ AUTOVERIFICACIÓN ANTES DE RESPONDER (si fallas alguna, vuelve atrás)
 [ ] ¿Verificaste la lista de logros en al menos UNA fuente externa?
 [ ] ¿Filtraste cualquier logro/zona de DLC? Solo juego base.
 [ ] ¿Suma de achievements = total_trophies?
-[ ] ¿Cada logro grupal de coleccionables (>10) tiene un step type:"video" con video_id real de 11 caracteres apuntándolo en unlocks?
+[ ] ¿Cada CATEGORÍA distinta de coleccionables (>10 c/u) tiene su PROPIO step type:"video"? Cuenta las categorías y los videos: deben coincidir. Si tienes 5 categorías grandes pero solo 1 step video, has agrupado mal.
+[ ] ¿Cada step video tiene un video_id real de 11 caracteres y los unlocks específicos de esa categoría (no todos los logros del juego)?
 [ ] ¿Cada coleccionable individual (cuando son ≤10) tiene ubicación específica, no "por ahí"?
 [ ] ¿Cada achievement con missable: true tiene al menos un step missable/collectible/video con unlocks apuntándolo?
 [ ] ¿Los video_id que devuelves son reales (verificaste que el vídeo existe)?
