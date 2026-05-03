@@ -133,7 +133,7 @@ export default function GameView({ session, manifest, meta, igdbId }: GameViewPr
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           {meta.screenshots?.length > 0 && (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '0.6rem' }}>
-              {meta.screenshots.slice(0, 4).map((img, i) => (
+              {meta.screenshots.slice(0, 6).map((img, i) => (
                 <div key={i} style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid #1a1a1a', aspectRatio: '16/9' }}>
                   <img src={img} alt={`${meta.name} captura ${i + 1}`} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
