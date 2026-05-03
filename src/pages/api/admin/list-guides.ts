@@ -1,7 +1,11 @@
 import type { APIRoute } from 'astro';
 import { createServerSupabase } from '../../../lib/supabase';
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ cookies }) => {
+  if (cookies.get('fach_admin')?.value !== '1') {
+    return Response.json({ error: 'No autorizado' }, { status: 401 });
+  }
+
   try {
     const supabase = createServerSupabase();
     const { data, error } = await supabase

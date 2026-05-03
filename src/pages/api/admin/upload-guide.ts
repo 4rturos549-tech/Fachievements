@@ -1,14 +1,16 @@
-import type { APIRoute } from 'astro';
+import type { APIRoute, AstroCookies } from 'astro';
 import { createServerSupabase } from '../../../lib/supabase';
 import { verifyAdminPassword } from '../../../lib/admin-auth';
 
-function getProvidedPassword(request: Request, body: { password?: unknown }): string | null {
+function isAuthorized(request: Request, cookies: AstroCookies, body: { password?: unknown }): boolean {
+  if (cookies.get('fach_admin')?.value === '1') return true;
   const header = request.headers.get('x-admin-password');
-  if (header) return header;
-  return typeof body.password === 'string' ? body.password : null;
+  if (header && verifyAdminPassword(header)) return true;
+  if (typeof body.password === 'string' && verifyAdminPassword(body.password)) return true;
+  return false;
 }
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, cookies }) => {
   let body: { igdb_id?: unknown; manifest?: unknown; password?: unknown };
   try {
     body = await request.json();
@@ -16,8 +18,7 @@ export const POST: APIRoute = async ({ request }) => {
     return Response.json({ error: 'JSON inválido' }, { status: 400 });
   }
 
-  const provided = getProvidedPassword(request, body);
-  if (!verifyAdminPassword(provided)) {
+  if (!isAuthorized(request, cookies, body)) {
     return Response.json({ error: 'No autorizado' }, { status: 401 });
   }
 

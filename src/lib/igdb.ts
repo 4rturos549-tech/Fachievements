@@ -8,8 +8,8 @@ interface CachedToken {
 let tokenCache: CachedToken | null = null;
 
 async function getTwitchToken(): Promise<string> {
-  const clientId = process.env.TWITCH_CLIENT_ID;
-  const clientSecret = process.env.TWITCH_CLIENT_SECRET;
+  const clientId = import.meta.env.TWITCH_CLIENT_ID;
+  const clientSecret = import.meta.env.TWITCH_CLIENT_SECRET;
 
   if (!clientId || !clientSecret) {
     throw new Error('Faltan TWITCH_CLIENT_ID o TWITCH_CLIENT_SECRET en las variables de entorno');
@@ -38,7 +38,7 @@ async function getTwitchToken(): Promise<string> {
 
 async function igdbQuery<T>(endpoint: string, body: string): Promise<T> {
   const token = await getTwitchToken();
-  const clientId = process.env.TWITCH_CLIENT_ID!;
+  const clientId = import.meta.env.TWITCH_CLIENT_ID as string;
 
   const res = await fetch(`https://api.igdb.com/v4/${endpoint}`, {
     method: 'POST',

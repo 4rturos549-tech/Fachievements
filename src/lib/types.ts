@@ -5,6 +5,7 @@ export interface Step {
   id: string;
   type: StepType;
   description: string;
+  unlocks?: string[];
 }
 
 export interface Zone {
